@@ -7,19 +7,23 @@ namespace two_player_games_working
     public class NegamaxPlayer<TState> : Player<TState> where TState: IState
     {
         public int PlayerNumber { get; }
+        public int MillisecondsPerMove { get; }
+        public float HistoryPowerBase { get; }
 
         private Dictionary<long, TranspositionTableEntry> transpositionTable;
         private Dictionary<int, long> historyScores;
         private long evals;
         private int maxDepth;
         private DateTime start;
-        private const int millisecondsPerMove = 900;
         private Random random = new Random();
+        private bool ignoringTimer = false;
 
-        public NegamaxPlayer(GameRules<TState> gameRules, int playerNumber)
+        public NegamaxPlayer(GameRules<TState> gameRules, int playerNumber, int millisecondsPerMove, float historyPowerBase)
             : base(gameRules)
         {
             PlayerNumber = playerNumber;
+            MillisecondsPerMove = millisecondsPerMove;
+            HistoryPowerBase = historyPowerBase;
         }
 
         public override TState MakeMove(TState state)
@@ -28,7 +32,7 @@ namespace two_player_games_working
             evals = 0;
             transpositionTable = new Dictionary<long, TranspositionTableEntry>();
             historyScores = new Dictionary<int, long>();
-            List<TState> bestOverall;
+            List<TState> bestOverall = null;
             var possibleMoves = GameRules.Expand(state);
             int depth = 2;
             while (true)
@@ -39,6 +43,8 @@ namespace two_player_games_working
                 List<TState> bestMoves = new List<TState>();
                 foreach (var successor in possibleMoves)
                 {
+                    var timeRunning = DateTime.UtcNow - start;
+                    if (!ignoringTimer && timeRunning.TotalMilliseconds > MillisecondsPerMove) break;
                     var value = -Negamax(successor, depth-1, float.MinValue, float.MaxValue, -PlayerNumber);
                     Console.WriteLine(successor.LastMoveDescription() + ": " + value);
                     if (value > best)
@@ -51,6 +57,8 @@ namespace two_player_games_working
                         bestMoves.Add(successor);
                     }
                 }
+                var failCheck = DateTime.UtcNow - start;
+                if (!ignoringTimer && bestOverall != null && failCheck.TotalMilliseconds > MillisecondsPerMove) break;
                 bestOverall = bestMoves;
                 if (maxDepth > 0)
                 {
@@ -100,13 +108,13 @@ namespace two_player_games_working
             foreach (var successor in successors)
             {
                 var timeRunning = DateTime.UtcNow - start;
-                if (timeRunning.TotalMilliseconds > millisecondsPerMove) break;
+                if (!ignoringTimer && timeRunning.TotalMilliseconds > MillisecondsPerMove) break;
                 var value = -Negamax(successor, depth-1, -beta, -alpha, -playerNumber);
                 best = Math.Max(best, value);
                 alpha = Math.Max(alpha, value);
                 if (alpha >= beta)
                 {
-                    AddHistoryScore(successor, 1 << depth);
+                    AddHistoryScore(successor, (long)Math.Ceiling(Math.Pow(HistoryPowerBase, depth)));
                     break;
                 };
             }
