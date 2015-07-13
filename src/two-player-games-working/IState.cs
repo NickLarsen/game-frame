@@ -7,5 +7,6 @@
         int GetHistoryHash();
         float GetHeuristicValue();
         string LastMoveDescription();
+        float GetMovementPenalty();
     }
 }

@@ -31,6 +31,11 @@ namespace two_player_games_working
             return 0f;
         }
 
+        public float GetMovementPenalty()
+        {
+            return (9 - Empties) / 100f;
+        }
+
         private static readonly Dictionary<int?, long> hashPartLookup = new Dictionary<int?, long>
         {
             { 0, 0x0L },
@@ -90,8 +95,7 @@ namespace two_player_games_working
             {
                 if (winner.All(m => state.Board[m] == lastPlayer))
                 {
-                    var depthAdjustment = (state.Board.Length - state.Empties) / 100f;
-                    return -1 + depthAdjustment;
+                    return -1 + state.GetMovementPenalty();
                 }
             }
             if (state.Empties == 0) return 0f;
