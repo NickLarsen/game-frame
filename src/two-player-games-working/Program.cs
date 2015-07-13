@@ -15,8 +15,9 @@ namespace two_player_games_working
         static void PlayTicTacToe()
         {
             var rules = new TicTacToeGameRules();
-            var p1 = new NegamaxPlayer<TicTacToeState>(rules, 1, 950, 2f);
-            var p2 = new NegamaxPlayer<TicTacToeState>(rules, -1, 950, 2f);
+            int? randomSeed = null;
+            var p1 = new NegamaxPlayer<TicTacToeState>(rules, 1, 950, 2f, randomSeed);
+            var p2 = new NegamaxPlayer<TicTacToeState>(rules, -1, 950, 2f, randomSeed);
             var state = TicTacToeState.Empty;
             PlayGame(rules, p1, p2, state);
         }
