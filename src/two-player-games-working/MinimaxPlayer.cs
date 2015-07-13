@@ -15,15 +15,16 @@ namespace two_player_games_working
         private long evals;
         private int maxDepth;
         private DateTime start;
-        private Random random = new Random();
+        private readonly Random random;
         private bool ignoringTimer = false;
 
-        public NegamaxPlayer(GameRules<TState> gameRules, int playerNumber, int millisecondsPerMove, float historyPowerBase)
+        public NegamaxPlayer(GameRules<TState> gameRules, int playerNumber, int millisecondsPerMove, float historyPowerBase, int? randomSeed = null)
             : base(gameRules)
         {
             PlayerNumber = playerNumber;
             MillisecondsPerMove = millisecondsPerMove;
             HistoryPowerBase = historyPowerBase;
+            random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
         }
 
         public override TState MakeMove(TState state)
