@@ -96,12 +96,11 @@ namespace two_player_games_working
             var score = GameRules.DetermineWinner(state);
             if (score.HasValue)
             {
-                if (score.Value == 0) return 0;
-                return score.Value * playerNumber;
+                return score.Value;
             }
             if (depth == 0)
             {
-                return state.GetHeuristicValue() * playerNumber;
+                return state.GetHeuristicValue();
             }
             float best = float.MinValue;
             var successors = GameRules.Expand(state).OrderByDescending(GetHistoryScore);

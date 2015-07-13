@@ -79,31 +79,33 @@ namespace two_player_games_working
             return successors;
         }
 
-        public override int? DetermineWinner(TicTacToeState state)
+        public override float? DetermineWinner(TicTacToeState state)
         {
-            for (int i = 0; i < winners.Length; i++)
+            if (state.LastMove == -1) return null;
+            var lastPlayer = state.Board[state.LastMove];
+            foreach (var winner in winners[state.LastMove])
             {
-                int[] winner = winners[i];
-                int? first = state.Board[winner[0]];
-                if (!first.HasValue) continue;
-                if (first == state.Board[winner[1]] && first == state.Board[winner[2]])
+                if (winner.All(m => state.Board[m] == lastPlayer))
                 {
-                    return first.Value;
+                    var depthAdjustment = (state.Board.Length - state.Empties) / 100f;
+                    return -1 + depthAdjustment;
                 }
             }
-            return state.Empties == 0 ? 0 : (int?)null;
+            if (state.Empties == 0) return 0f;
+            return null;
         }
 
-        static readonly int[][] winners = new int[][]
+        static readonly Dictionary<int, int[][]> winners = new Dictionary<int, int[][]>
         {
-            new int[] { 0,1,2 },
-            new int[] { 3,4,5 },
-            new int[] { 6,7,8 },
-            new int[] { 0,3,6 },
-            new int[] { 1,4,7 },
-            new int[] { 2,5,8 },
-            new int[] { 0,4,8 },
-            new int[] { 2,4,6 },
+            { 0,  new int[][] { new int[] { 1, 2 }, new int[] { 3, 6 }, new int[] { 4, 8 } } },
+            { 1,  new int[][] { new int[] { 0, 2 }, new int[] { 4, 7 } } },
+            { 2,  new int[][] { new int[] { 0, 1 }, new int[] { 5, 8 }, new int[] { 4, 6 } } },
+            { 3,  new int[][] { new int[] { 0, 6 }, new int[] { 4, 5 } } },
+            { 4,  new int[][] { new int[] { 0, 8 }, new int[] { 1, 7 }, new int[] { 3, 5 }, new int[] { 2, 6 } } },
+            { 5,  new int[][] { new int[] { 3, 4 }, new int[] { 2, 8 } } },
+            { 6,  new int[][] { new int[] { 0, 3 }, new int[] { 2, 4 }, new int[] { 7, 8 } } },
+            { 7,  new int[][] { new int[] { 1, 4 }, new int[] { 6, 8 } } },
+            { 8,  new int[][] { new int[] { 2, 5 }, new int[] { 6, 7 }, new int[] { 0, 4 } } },
         };
     }
 }
