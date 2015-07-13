@@ -60,6 +60,9 @@ namespace two_player_games_working
 
     public class TicTacToeGameRules : GameRules<TicTacToeState>
     {
+        public override string FirstPlayerName => "X";
+        public override string SecondPlayerName => "O";
+
         public override List<TicTacToeState> Expand(TicTacToeState state)
         {
             var successors = new List<TicTacToeState>();

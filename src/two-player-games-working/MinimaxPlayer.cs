@@ -22,6 +22,7 @@ namespace two_player_games_working
             : base(gameRules)
         {
             PlayerNumber = playerNumber;
+            Name = playerNumber == 1 ? gameRules.FirstPlayerName : gameRules.SecondPlayerName;
             MillisecondsPerMove = millisecondsPerMove;
             HistoryPowerBase = historyPowerBase;
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();

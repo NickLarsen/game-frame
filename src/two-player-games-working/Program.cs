@@ -36,7 +36,10 @@ namespace two_player_games_working
                 Console.WriteLine(state.ToString());
                 currentPlayer = currentPlayer == p1 ? p2 : p1;
             }
-            Console.WriteLine("Winner = " + rules.DetermineWinner(state));
+            var winner = rules.DetermineWinner(state);
+            if (winner == 0f) Console.WriteLine("Result: Tie");
+            if (winner < 0f) Console.WriteLine($"Result: {rules.FirstPlayerName} wins!");
+            if (winner > 0f) Console.WriteLine($"Result: {rules.SecondPlayerName} wins!");
         }
     }
 }
