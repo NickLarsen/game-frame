@@ -6,5 +6,6 @@
         long GetStateHash();
         int GetHistoryHash();
         float GetHeuristicValue();
+        string LastMoveDescription();
     }
 }

@@ -40,6 +40,7 @@ namespace two_player_games_working
                 foreach (var successor in possibleMoves)
                 {
                     var value = -Negamax(successor, depth-1, float.MinValue, float.MaxValue, -PlayerNumber);
+                    Console.WriteLine(successor.LastMoveDescription() + ": " + value);
                     if (value > best)
                     {
                         best = value;

@@ -51,6 +51,11 @@ namespace two_player_games_working
             var args = Board.Select(m => m.HasValue ? (m.Value == 1 ? "X" : "O") : " ").ToArray();
             return string.Format("{0}|{1}|{2}\n-+-+-\n{3}|{4}|{5}\n-+-+-\n{6}|{7}|{8}", args);
         }
+
+        public string LastMoveDescription()
+        {
+            return LastMove.ToString();
+        }
     }
 
     public class TicTacToeGameRules : GameRules<TicTacToeState>
