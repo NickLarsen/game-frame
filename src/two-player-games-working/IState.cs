@@ -1,4 +1,6 @@
-﻿namespace two_player_games_working
+﻿using System.IO;
+
+namespace two_player_games_working
 {
     public interface IState
     {
@@ -7,6 +9,8 @@
         int GetHistoryHash();
         float GetHeuristicValue();
         string LastMoveDescription();
-        float GetMovementPenalty();
+        void WriteDebugInfo(TextWriter output);
+        void PreRun();
+        void PostRun();
     }
 }

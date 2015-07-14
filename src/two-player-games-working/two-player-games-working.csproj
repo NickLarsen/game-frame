@@ -45,7 +45,8 @@
   <ItemGroup>
     <Compile Include="GameRules.cs" />
     <Compile Include="IState.cs" />
-    <Compile Include="MinimaxPlayer.cs" />
+    <Compile Include="NegamaxPlayer.cs" />
+    <Compile Include="NineMensMorrisGameRules.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

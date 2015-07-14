@@ -47,7 +47,9 @@ namespace two_player_games_working
                 {
                     var timeRunning = DateTime.UtcNow - start;
                     if (!ignoringTimer && timeRunning.TotalMilliseconds > MillisecondsPerMove) break;
-                    var value = -Negamax(successor, depth-1, float.MinValue, float.MaxValue, -PlayerNumber);
+                    successor.PreRun();
+                    var value = -Negamax(successor, depth-1, float.MinValue, float.MaxValue);
+                    successor.PostRun();
                     Console.WriteLine(successor.LastMoveDescription() + ": " + value);
                     if (value > best)
                     {
@@ -62,17 +64,30 @@ namespace two_player_games_working
                 var failCheck = DateTime.UtcNow - start;
                 if (!ignoringTimer && bestOverall != null && failCheck.TotalMilliseconds > MillisecondsPerMove) break;
                 bestOverall = bestMoves;
-                if (maxDepth > 0)
+                if (best > 0.9f)
                 {
+                    Console.WriteLine($"Win found for {Name}.");
+                    break;
+                }
+                if (best < -0.9f)
+                {
+                    Console.WriteLine($"Loss found for {Name}.");
+                    break;
+                }
+                if (best == 0f)
+                {
+                    Console.WriteLine("Tie detected.");
                     break;
                 }
                 depth += 2;
             }
             Console.WriteLine(evals);
-            return bestOverall[random.Next(bestOverall.Count)];
+            var selection = bestOverall[random.Next(bestOverall.Count)];
+            selection.PreRun();
+            return selection;
         }
 
-        private float Negamax(TState state, int depth, float alpha, float beta, int playerNumber)
+        private float Negamax(TState state, int depth, float alpha, float beta)
         {
             maxDepth = Math.Min(maxDepth, depth);
             evals++;
@@ -110,7 +125,7 @@ namespace two_player_games_working
             {
                 var timeRunning = DateTime.UtcNow - start;
                 if (!ignoringTimer && timeRunning.TotalMilliseconds > MillisecondsPerMove) break;
-                var value = -Negamax(successor, depth-1, -beta, -alpha, -playerNumber);
+                var value = -Negamax(successor, depth-1, -beta, -alpha);
                 best = Math.Max(best, value);
                 alpha = Math.Max(alpha, value);
                 if (alpha >= beta)

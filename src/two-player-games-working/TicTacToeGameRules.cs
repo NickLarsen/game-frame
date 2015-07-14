@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace two_player_games_working
@@ -15,8 +16,9 @@ namespace two_player_games_working
             long hash = 0;
             for (int i = 0; i < Board.Length; i++)
             {
+                int? stone = Board[i];
                 hash <<= 2;
-                hash |= hashPartLookup[Board[i] ?? 0];
+                hash |= stone == 1 ? 1L : (stone == -1 ? 2L : 0L);
             }
             return hash;
         }
@@ -31,17 +33,8 @@ namespace two_player_games_working
             return 0f;
         }
 
-        public float GetMovementPenalty()
-        {
-            return (9 - Empties) / 100f;
-        }
-
-        private static readonly Dictionary<int?, long> hashPartLookup = new Dictionary<int?, long>
-        {
-            { 0, 0x0L },
-            { 1, 0x1L },
-            { -1, 0x2L },
-        };
+        public void PreRun() { }
+        public void PostRun() { }
 
         public static TicTacToeState Empty => new TicTacToeState()
         {
@@ -60,6 +53,14 @@ namespace two_player_games_working
         public string LastMoveDescription()
         {
             return LastMove.ToString();
+        }
+
+        public void WriteDebugInfo(TextWriter output)
+        {
+            output.WriteLine("Board: " + string.Join(", ", Board));
+            output.WriteLine("Empties: " + Empties);
+            output.WriteLine("ActivePlayer: " + ActivePlayer);
+            output.WriteLine("LastMove: " + LastMove);
         }
     }
 
@@ -95,7 +96,7 @@ namespace two_player_games_working
             {
                 if (winner.All(m => state.Board[m] == lastPlayer))
                 {
-                    return -1 + state.GetMovementPenalty();
+                    return -1f;
                 }
             }
             if (state.Empties == 0) return 0f;
