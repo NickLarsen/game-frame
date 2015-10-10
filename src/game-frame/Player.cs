@@ -1,4 +1,6 @@
-﻿namespace two_player_games_working
+﻿using GameFrame;
+
+namespace GameFrame
 {
     public abstract class Player<TState> where TState: IState
     {

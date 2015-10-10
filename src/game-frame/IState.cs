@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace two_player_games_working
+namespace GameFrame
 {
     public interface IState
     {

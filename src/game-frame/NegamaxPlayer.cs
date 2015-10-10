@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameFrame;
 
-namespace two_player_games_working
+namespace GameFrame
 {
     public class NegamaxPlayer<TState> : Player<TState> where TState: IState
     {

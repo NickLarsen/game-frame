@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace two_player_games_working
+namespace GameFrame
 {
     public abstract class GameRules<TState> where TState: IState
     {
