@@ -12,127 +12,133 @@ namespace game_server_client_test
     // https://msdn.microsoft.com/en-us/library/bew39x2a(v=vs.110).aspx
     static class GameServerClientTest
     {
-        class StateObject
-        {
-            public Socket workSocket = null;
-            public const int BufferSize = 1024;
-            public byte[] buffer = new byte[BufferSize];
-            public StringBuilder sb = new StringBuilder();
-        }
-
-        private const int port = 11000;
-
-        private static ManualResetEvent connectDone = new ManualResetEvent(false);
-        private static ManualResetEvent sendDone = new ManualResetEvent(false);
-        private static ManualResetEvent receiveDone = new ManualResetEvent(false);
-
-        private static string response = string.Empty;
-
-        private static void StartClient()
-        {
-            try
-            {
-                IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                IPAddress ipAddress = ipHostInfo.AddressList[0];
-                IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
-                Socket client = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                client.BeginConnect(remoteEP, ConnectCallback, client);
-                connectDone.WaitOne();
-                Send(client, "This is a test<EOF>");
-                sendDone.WaitOne();
-                Receive(client);
-                receiveDone.WaitOne();
-                Console.WriteLine("Response received : {0}", response);
-                client.Shutdown(SocketShutdown.Both);
-                client.Close();
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
-
-        private static void ConnectCallback(IAsyncResult ar)
-        {
-            try
-            {
-                Socket client = (Socket)ar.AsyncState;
-                client.EndConnect(ar);
-                Console.WriteLine("Socket connected to {0}", client.RemoteEndPoint);
-                connectDone.Set();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
-
-        private static void Receive(Socket client)
-        {
-            try
-            {
-                StateObject state = new StateObject();
-                state.workSocket = client;
-                client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, ReceiveCallback, state);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
-
-        private static void ReceiveCallback(IAsyncResult ar)
-        {
-            try
-            {
-                StateObject state = (StateObject)ar.AsyncState;
-                Socket client = state.workSocket;
-                int bytesRead = client.EndReceive(ar);
-                if (bytesRead > 0)
-                {
-                    state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
-                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, ReceiveCallback, state);
-                }
-                else
-                {
-                    if (state.sb.Length > 1)
-                    {
-                        response = state.sb.ToString();
-                    }
-                    receiveDone.Set();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
-
-        private static void Send(Socket client, string data)
-        {
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
-            client.BeginSend(byteData, 0, byteData.Length, 0, SendCallback, client);
-        }
-
-        private static void SendCallback(IAsyncResult ar)
-        {
-            try
-            {
-                Socket client = (Socket)ar.AsyncState;
-                int bytesSent = client.EndSend(ar);
-                Console.WriteLine("Sent {0} bytes to server.", bytesSent);
-                sendDone.Set();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
-
         static void Main(string[] args)
         {
-            StartClient();
+            try
+            {
+                RunClient();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+        private static void RunClient()
+        {
+            var connection = new SocketConnection();
+            connection.OnReceive += HandleReceive;
+            connection.Connect();
+            while (true)
+            {
+                var input = Console.ReadLine();
+                if (input == "exit") break;
+                connection.Send(input);
+            }
+            connection.Close();
+        }
+
+        private static void HandleReceive(string value)
+        {
+            Console.WriteLine(value);
+        }
+    }
+
+    public delegate void ReceivedEventHandler(string value);
+
+    class SocketConnection : IDisposable
+    {
+        private Socket socket;
+        private const int BufferSize = 1024;
+        private byte[] buffer = new byte[BufferSize];
+        private StringBuilder sb = new StringBuilder();
+
+        public void Connect()
+        {
+            Write("Connecting socket...");
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPEndPoint remoteEP = new IPEndPoint(ipAddress, 11000);
+            socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.Connect(remoteEP);
+            InitiateReceive();
+        }
+
+        public void Send(string value)
+        {
+            if (socket.IsConnected())
+            {
+                byte[] byteData = Encoding.ASCII.GetBytes(value);
+                socket.Send(byteData);
+            }
+            else
+            {
+                Write("Unable to send: connection closed.");
+            }
+        }
+
+        public void Close()
+        {
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
+        }
+
+        private void InitiateReceive()
+        {
+            if (socket.IsConnected())
+            {
+                socket.BeginReceive(buffer, 0, BufferSize, SocketFlags.None, ReceiveCallback, null);
+                Write("Waiting for data...");
+            }
+            else
+            {
+                Connect();
+            }
+        }
+
+        private void ReceiveCallback(IAsyncResult ar)
+        {
+            // TODO: catch forcibly closed connections and gracefully disconnect
+            int bytesRead = socket.EndReceive(ar);
+            Write("ReceivedCallback: " + bytesRead);
+            if (bytesRead > 0)
+            {
+                sb.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
+            }
+            else
+            {
+                var message = sb.ToString();
+                sb.Clear();
+                if (OnReceive != null)
+                {
+                    OnReceive(message);
+                }
+            }
+            InitiateReceive();
+        }
+
+        public event ReceivedEventHandler OnReceive;
+
+        public void Dispose()
+        {
+            socket.Dispose();
+        }
+
+        private void Write(string value)
+        {
+            Console.WriteLine("[{0}] " + value, DateTime.UtcNow);
+        }
+    }
+
+    static class SocketExtensions
+    {
+        public static bool IsConnected(this Socket socket)
+        {
+            try
+            {
+                return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
+            }
+            catch (SocketException) { return false; }
         }
     }
 }
