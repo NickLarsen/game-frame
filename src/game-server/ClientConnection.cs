@@ -22,7 +22,7 @@ namespace GameServer
             socket = remoteSocket;
         }
 
-        public void InitiateHandshake()
+        public void InitiateProtocolHandshake()
         {
             InitiateReceive(HandshakeCallback);
         }
