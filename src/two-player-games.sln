@@ -13,7 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "console-tester", "console-t
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "game-server", "game-server\game-server.csproj", "{2BF8876A-2C3A-4DA2-8B7C-97FC1CFD2303}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "game-server-client-test", "game-server-client-test\game-server-client-test.csproj", "{A8F8423C-E9B9-4CD2-B7F8-8B31BFED8D40}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "game-server-management-console", "game-server-management-console\game-server-management-console.csproj", "{A8F8423C-E9B9-4CD2-B7F8-8B31BFED8D40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "game-server-client", "game-server-client\game-server-client.csproj", "{F4AB26C1-5E2F-4618-992E-E7D71FA7EACF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{A8F8423C-E9B9-4CD2-B7F8-8B31BFED8D40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8F8423C-E9B9-4CD2-B7F8-8B31BFED8D40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8F8423C-E9B9-4CD2-B7F8-8B31BFED8D40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4AB26C1-5E2F-4618-992E-E7D71FA7EACF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4AB26C1-5E2F-4618-992E-E7D71FA7EACF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4AB26C1-5E2F-4618-992E-E7D71FA7EACF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4AB26C1-5E2F-4618-992E-E7D71FA7EACF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
