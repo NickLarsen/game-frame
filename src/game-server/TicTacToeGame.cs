@@ -38,8 +38,8 @@ namespace GameServer
         {
             moves = new List<string>();
             WhenAllReady(UpdateGameState);
-            player1.Send("prepare-new-game player-number=1 milliseconds-per-move=1000");
-            player2.Send("prepare-new-game player-number=-1 milliseconds-per-move=1000");
+            player1.Send("prepare-new-game game=tictactoe player-number=1 milliseconds-per-move=1000");
+            player2.Send("prepare-new-game game=tictactoe player-number=-1 milliseconds-per-move=1000");
         }
 
         private void UpdateGameState()
