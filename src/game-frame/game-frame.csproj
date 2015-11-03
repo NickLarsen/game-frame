@@ -41,6 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameRules.cs" />
+    <Compile Include="Games\NineMensMorrisGameRules.cs" />
+    <Compile Include="Games\TicTacToeGameRules.cs" />
     <Compile Include="IState.cs" />
     <Compile Include="NegamaxPlayer.cs" />
     <Compile Include="Player.cs" />

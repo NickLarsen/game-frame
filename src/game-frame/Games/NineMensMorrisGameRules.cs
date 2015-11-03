@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace GameFrame.NineMensMorris
+namespace GameFrame.Games
 {
     public class NineMensMorrisState : IState
     {

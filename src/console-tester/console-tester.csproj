@@ -55,14 +55,6 @@
       <Project>{6fcc9a45-b721-4b61-81cf-3e5cc41c4f93}</Project>
       <Name>game-frame</Name>
     </ProjectReference>
-    <ProjectReference Include="..\nine-mens-morris\nine-mens-morris.csproj">
-      <Project>{23b13d2e-22b8-4967-a88b-6947fb1b2584}</Project>
-      <Name>nine-mens-morris</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\tic-tac-toe\tic-tac-toe.csproj">
-      <Project>{28c67d32-89d0-46e4-91ba-43ddae409de7}</Project>
-      <Name>tic-tac-toe</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

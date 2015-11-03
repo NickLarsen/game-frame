@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GameFrame;
-using GameFrame.NineMensMorris;
-using GameFrame.TicTacToe;
+using GameFrame.Games;
 
 namespace ConsoleTester
 {

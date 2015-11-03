@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace GameFrame.TicTacToe
+namespace GameFrame.Games
 {
     public class TicTacToeState : IState
     {
