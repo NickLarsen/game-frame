@@ -33,7 +33,7 @@ namespace GameServer
             switch (message["type"])
             {
                 case "prepare-new-game":
-                    gameHandler = new TicTacToeHandler();
+                    gameHandler = GetHandler(message["game"]);
                     gameHandler.PrepareNewGame(message);
                     connection.Send("ready");
                     return;
@@ -52,6 +52,13 @@ namespace GameServer
                 default:
                     throw new Exception("Unknown message type received.");
             }
+        }
+
+        private GameHandler GetHandler(string gameType)
+        {
+            if (gameType == "tictactoe") return new TicTacToeHandler();
+            if (gameType == "ninemensmorris") return new NineMensMorrisHandler();
+            throw new Exception("No handler for the specified game: " + gameType);
         }
 
         private Dictionary<string, string> ParseMessage(string config)

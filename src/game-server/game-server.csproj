@@ -45,6 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientConnection.cs" />
+    <Compile Include="Game.cs" />
+    <Compile Include="NineMensMorrisGame.cs" />
     <Compile Include="TicTacToeGame.cs" />
     <Compile Include="GameServerProgram.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

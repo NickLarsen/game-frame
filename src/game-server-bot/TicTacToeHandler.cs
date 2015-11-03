@@ -12,7 +12,7 @@ namespace GameServer
 
         public void PrepareNewGame(Dictionary<string, string> parameters)
         {
-            TicTacToeGameRules gameRules = new TicTacToeGameRules();
+            var gameRules = new TicTacToeGameRules();
             var playerNumber = int.Parse(parameters["player-number"]);
             var moveTime = int.Parse(parameters["milliseconds-per-move"]);
             player = new NegamaxPlayer<TicTacToeState>(gameRules, playerNumber, moveTime, 2f, null);
@@ -26,7 +26,7 @@ namespace GameServer
         private static TicTacToeState BuildState(string serverState)
         {
             var moves = serverState.ToCharArray().Select(m => int.Parse(m.ToString())).ToArray();
-            TicTacToeState state = new TicTacToeState()
+            var state = new TicTacToeState()
             {
                 Board = new int?[9],
                 Empties = 9 - moves.Length,

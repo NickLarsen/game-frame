@@ -65,7 +65,8 @@ namespace GameServer
                 bots.Add(client);
                 if (bots.Count == 2)
                 {
-                    PlayTicTacToe(bots[0], bots[1]);
+                    //PlayTicTacToe(bots[0], bots[1]);
+                    PlayNineMensMorris(bots[0], bots[1]);
                 }
             }
         }
@@ -78,9 +79,17 @@ namespace GameServer
             game.Start();
         }
 
-        private void GameCompletedHandler(TicTacToeGame game, string winner)
+        private void PlayNineMensMorris(ClientConnection player1, ClientConnection player2)
         {
-            Log("Ending TicTacToe Game: " + game.GetDescription() + ", winner = " + winner);
+            var game = new NineMensMorrisGame(player1, player2);
+            game.OnCompleted += GameCompletedHandler;
+            Log("Starting TicTacToe Game: " + game.GetDescription());
+            game.Start();
+        }
+
+        private void GameCompletedHandler(Game game, string winner)
+        {
+            Log("Ending Game: " + game.GetDescription() + ", winner = " + winner);
         }
 
         private void HandleDisconnect(ClientConnection client, Exception ex)
