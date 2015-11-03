@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using GameFrame.Games;
 
 namespace GameServer
 {
-    class Game
+    internal delegate void OnCompletedHandler(TicTacToeGame game, string winner);
+
+    class TicTacToeGame
     {
         private readonly ClientConnection player1;
         private readonly ClientConnection player2;
@@ -12,11 +16,17 @@ namespace GameServer
         private bool player2Ready = false;
         private Action readyAction;
         private string currentStatus;
+        private readonly TicTacToeGameRules gameRules = new TicTacToeGameRules();
 
-        public Game(ClientConnection player1, ClientConnection player2)
+        public TicTacToeGame(ClientConnection player1, ClientConnection player2)
         {
             this.player1 = player1;
             this.player2 = player2;
+        }
+
+        public string GetDescription()
+        {
+            return player1.Name + " vs " + player2.Name;
         }
 
         public void Start()
@@ -34,8 +44,15 @@ namespace GameServer
 
         private void UpdateGameState()
         {
-            WhenAllReady(GameLoop);
             var gameState = GenerateWireState();
+            if (DetermineWinners(gameState).Any())
+            {
+                WhenAllReady(AnnounceWinner);
+            }
+            else
+            {
+                WhenAllReady(GameLoop);
+            }
             player1.Send("update-game-state state=" + gameState);
             player2.Send("update-game-state state=" + gameState);
         }
@@ -43,6 +60,43 @@ namespace GameServer
         private string GenerateWireState()
         {
             return string.Join("", moves);
+        }
+
+        private List<ClientConnection> DetermineWinners(string gameState)
+        {
+            var result = new List<ClientConnection>();
+            var state = BuildState(gameState);
+            var winner = gameRules.DetermineWinner(state);
+            if (winner.HasValue)
+            {
+                if (winner == 0f)
+                {
+                    result.Add(player1);
+                    result.Add(player2);
+                }
+                if (winner < 0f) result.Add(player1);
+                if (winner > 0f) result.Add(player2);
+            }
+            return result;
+        }
+
+        private static TicTacToeState BuildState(string serverState)
+        {
+            var moves = serverState.ToCharArray().Select(m => int.Parse(m.ToString())).ToArray();
+            TicTacToeState state = new TicTacToeState()
+            {
+                Board = new int?[9],
+                Empties = 9 - moves.Length,
+                ActivePlayer = moves.Length % 2 == 0 ? 1 : -1,
+                LastMove = moves.Length == 0 ? -1 : moves.Last(),
+            };
+            var playerNumber = 1;
+            foreach (var move in moves)
+            {
+                state.Board[move] = playerNumber;
+                playerNumber *= -1;
+            }
+            return state;
         }
 
         private void GameLoop()
@@ -62,6 +116,19 @@ namespace GameServer
             client.OnReceive -= MakeMove;
             moves.Add(args[1]);
             UpdateGameState();
+        }
+
+        private void AnnounceWinner()
+        {
+            var gameState = GenerateWireState();
+            var winners = DetermineWinners(gameState);
+            var winner = winners.Count == 1 ? winners[0].Name : "draw";
+            player1.Send("announce-winner winner=" + winner);
+            player2.Send("announce-winner winner=" + winner);
+            if (OnCompleted != null)
+            {
+                OnCompleted(this, winner);
+            }
         }
 
         private void WhenAllReady(Action nextAction)
@@ -99,5 +166,7 @@ namespace GameServer
                 }
             }
         }
+
+        public event OnCompletedHandler OnCompleted;
     }
 }

@@ -45,6 +45,10 @@ namespace GameServer
                     var newState = gameHandler.MakeMove(message);
                     connection.Send("move " + newState.LastMoveDescription());
                     break;
+                case "announce-winner":
+                    // this will be logged automatically, clean up resources
+                    gameHandler = null;
+                    break;
                 default:
                     throw new Exception("Unknown message type received.");
             }

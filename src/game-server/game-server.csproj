@@ -45,13 +45,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientConnection.cs" />
-    <Compile Include="Game.cs" />
+    <Compile Include="TicTacToeGame.cs" />
     <Compile Include="GameServerProgram.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\game-frame\game-frame.csproj">
+      <Project>{6fcc9a45-b721-4b61-81cf-3e5cc41c4f93}</Project>
+      <Name>game-frame</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
