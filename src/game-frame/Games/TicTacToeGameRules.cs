@@ -30,7 +30,7 @@ namespace GameFrame.Games
 
         public float GetHeuristicValue()
         {
-            return 0f;
+            return 0.01f;
         }
 
         public void PreRun() { }

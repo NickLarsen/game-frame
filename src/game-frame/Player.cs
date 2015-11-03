@@ -13,10 +13,5 @@ namespace GameFrame
         }
 
         public abstract TState MakeMove(TState state);
-
-        public virtual Task<TState> MakeMoveAsync(TState state)
-        {
-            return Task.Run(() => MakeMove(state));
-        }
     }
 }

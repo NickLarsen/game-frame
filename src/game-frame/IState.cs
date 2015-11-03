@@ -7,7 +7,7 @@ namespace GameFrame
         int ActivePlayer { get; set; }
         long GetStateHash();
         int GetHistoryHash();
-        float GetHeuristicValue();
+        float GetHeuristicValue(); // this function should never return 0f else finding certain ties gets much harder
         string LastMoveDescription();
         void WriteDebugInfo(TextWriter output);
         void PreRun();
