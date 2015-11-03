@@ -11,10 +11,16 @@ namespace GameServer
         private readonly int port = 11873;
         private GameHandler gameHandler;
         private GameServerConnection connection;
+        private readonly string name;
+
+        public GameServerBot(string name)
+        {
+            this.name = "bot:" + name;
+        }
 
         public void Connect()
         {
-            connection = new GameServerConnection("bot:game-frame");
+            connection = new GameServerConnection(name);
             connection.OnReceive += Log;
             connection.OnReceive += HandleReceive;
             connection.Connect(serverHostName, port);

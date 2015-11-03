@@ -44,11 +44,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameHandler.cs" />
+    <Compile Include="GameServerBot.cs" />
     <Compile Include="GameServerBotProgram.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TicTacToeHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\game-frame\game-frame.csproj">
+      <Project>{6fcc9a45-b721-4b61-81cf-3e5cc41c4f93}</Project>
+      <Name>game-frame</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\game-server-client\game-server-client.csproj">
+      <Project>{f4ab26c1-5e2f-4618-992e-e7d71fa7eacf}</Project>
+      <Name>game-server-client</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

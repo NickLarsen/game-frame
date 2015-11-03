@@ -9,9 +9,14 @@ namespace GameServer
         
         static void Main(string[] args)
         {
+            if (args.Length != 1)
+            {
+                Console.WriteLine("Please enter a bot name as the only argument.");
+                return;
+            }
             try
             {
-                new GameServerBot().Connect();
+                new GameServerBot(args[0]).Connect();
                 responseWaiter.WaitOne();
             }
             catch (Exception e)

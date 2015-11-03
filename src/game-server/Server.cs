@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -9,6 +10,7 @@ namespace GameServer
     {
         private Socket listener;
         private readonly TextWriter logWriter;
+        private readonly List<ClientConnection> bots = new List<ClientConnection>();
 
         public Server(TextWriter logWriter)
         {
@@ -24,7 +26,7 @@ namespace GameServer
             listener.Bind(localEndPoint);
             listener.Listen(100);
             AcceptNext();
-            Console.WriteLine("Server started, waiting for connections...");
+            Log("Server started, waiting for connections...");
         }
 
         public void Stop()
@@ -49,7 +51,6 @@ namespace GameServer
 
         private void EchoHandler(ClientConnection client, string value)
         {
-            Log(client.Name + "> " + value);
             client.Send(value);
         }
 
@@ -57,13 +58,28 @@ namespace GameServer
         {
             Log(client.Name + " is now connected.");
             client.OnConnected -= HandleConnected;
-            client.OnReceive += EchoHandler;
+            client.OnReceive += LogClient;
             client.OnDisconnected += HandleDisconnect;
+            if (client.Name.StartsWith("bot:"))
+            {
+                bots.Add(client);
+                if (bots.Count == 2)
+                {
+                    var game = new Game(bots[0], bots[1]);
+                    game.Start();
+                }
+            }
         }
 
         private void HandleDisconnect(ClientConnection client, Exception ex)
         {
             Log(client.Name + " has disconnected.");
+            bots.Remove(client);
+        }
+
+        private void LogClient(ClientConnection client, string value)
+        {
+            Log(client.Name + "> " + value);
         }
 
         private void Log(string value)
