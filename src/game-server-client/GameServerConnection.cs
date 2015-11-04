@@ -56,6 +56,7 @@ namespace GameServer
             int bytesRead = socket.EndReceive(ar);
             if (bytesRead > 0)
             {
+                // TODO: convert to stream and end messages on FIRST null byte instead of assuming null byte at end
                 var value = Encoding.ASCII.GetString(buffer, 0, bytesRead);
                 sb.Append(value);
                 if (value[bytesRead - 1] == responseTerminator)
@@ -86,6 +87,7 @@ namespace GameServer
             int bytesRead = socket.EndReceive(ar);
             if (bytesRead > 0)
             {
+                // TODO: convert to stream and end messages on FIRST null byte instead of assuming null byte at end
                 var value = Encoding.ASCII.GetString(buffer, 0, bytesRead);
                 sb.Append(value);
                 if (value[bytesRead - 1] == responseTerminator)
