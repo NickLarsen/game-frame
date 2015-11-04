@@ -103,6 +103,14 @@ namespace GameFrame.Games
             return null;
         }
 
+        public override int? GetWinningPlayerNumber(TicTacToeState state)
+        {
+            var winner = DetermineWinner(state);
+            if (winner == null) return null;
+            if (winner == 0f) return 0;
+            return state.ActivePlayer * -1;
+        }
+
         static readonly Dictionary<int, int[][]> winners = new Dictionary<int, int[][]>
         {
             { 0,  new int[][] { new int[] { 1, 2 }, new int[] { 3, 6 }, new int[] { 4, 8 } } },

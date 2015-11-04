@@ -429,5 +429,13 @@ namespace GameFrame.Games
             }
             return null;
         }
+
+        public override int? GetWinningPlayerNumber(NineMensMorrisState state)
+        {
+            var winner = DetermineWinner(state);
+            if (winner == null) return null;
+            if (winner == 0f) return 0;
+            return state.ActivePlayer * -1;
+        }
     }
 }

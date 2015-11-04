@@ -18,16 +18,19 @@ namespace GameServer
         {
             var result = new List<ClientConnection>();
             var state = BuildState(gameState);
-            var winner = gameRules.DetermineWinner(state);
+            var winner = gameRules.GetWinningPlayerNumber(state);
             if (winner.HasValue)
             {
-                if (winner == 0f)
+                if (winner == 0)
                 {
                     result.Add(player1);
                     result.Add(player2);
                 }
-                if (winner < 0f) result.Add(player1);
-                if (winner > 0f) result.Add(player2);
+                else
+                {
+                    var p = winner == 1 ? player1 : player2;
+                    result.Add(p);
+                }
             }
             return result;
         }
