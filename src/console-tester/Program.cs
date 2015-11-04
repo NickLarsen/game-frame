@@ -32,7 +32,7 @@ namespace ConsoleTester
         {
             var rules = new NineMensMorrisGameRules();
             int? randomSeed = 1;
-            int millisecondsPerTurn = 9950;
+            int millisecondsPerTurn = 10000;
             var p1 = new NegamaxPlayer<NineMensMorrisState>(rules, 1, millisecondsPerTurn, 1.5f, randomSeed);
             var p2 = new NegamaxPlayer<NineMensMorrisState>(rules, -1, millisecondsPerTurn, 1.5f, randomSeed);
             var state = NineMensMorrisState.Empty;
@@ -50,7 +50,7 @@ namespace ConsoleTester
                 BlackRemaining = 9,
                 WhiteUnplayed = 0,
                 WhiteRemaining = 8,
-                Board = new int?[] { 1, 1, -1, null, 1, null, null, -1, null, 1, -1, null, 1, null, -1, null, -1, null, -1, 1, 1, -1, 1, -1 },
+                Board = new int[] { 1, 1, -1, 0, 1, 0, 0, -1, 0, 1, -1, 0, 1, 0, -1, 0, -1, 0, -1, 1, 1, -1, 1, -1 },
                 LastMove = Tuple.Create(-1, 12, -1),
                 RepeatedState = false,
                 StatesVisited = new HashSet<long>(),

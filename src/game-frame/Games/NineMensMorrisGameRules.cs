@@ -7,7 +7,7 @@ namespace GameFrame.Games
 {
     public class NineMensMorrisState : IState
     {
-        public int?[] Board { get; set; }
+        public int[] Board { get; set; }
         public int ActivePlayer { get; set; }
         public Tuple<int, int, int> LastMove { get; set; }
         public int WhiteUnplayed { get; set; }
@@ -22,9 +22,8 @@ namespace GameFrame.Games
             long hash = 0;
             for (int i = 0; i < Board.Length; i++)
             {
-                int? stone = Board[i];
                 hash <<= 2;
-                hash |= stone == 1 ? 1L : (stone == -1 ? 2L : 0L);
+                hash |= Board[i] & 3;
             }
             hash *= ActivePlayer;
             return hash;
@@ -74,7 +73,7 @@ namespace GameFrame.Games
 
         public static NineMensMorrisState Empty => new NineMensMorrisState()
         {
-            Board = new int?[24],
+            Board = new int[24],
             ActivePlayer = 1,
             LastMove = Tuple.Create(-1, -1, -1),
             WhiteUnplayed = 9,
@@ -111,7 +110,7 @@ namespace GameFrame.Games
 {21}----{22}----{23}";
         public override string ToString()
         {
-            var args = Board.Select(m => m.HasValue ? (m.Value == 1 ? "W" : "B") : " ").ToArray();
+            var args = Board.Select(m => m == 0 ? " " : (m == 1 ? "W" : "B")).ToArray();
             return string.Format(displayFormatLarge, args);
         }
 
@@ -159,10 +158,10 @@ namespace GameFrame.Games
         {
             for (int i = 0; i < state.Board.Length; i++)
             {
-                if (state.Board[i].HasValue) continue;
+                if (state.Board[i] != 0) continue;
                 var successor = new NineMensMorrisState()
                 {
-                    Board = (int?[])state.Board.Clone(),
+                    Board = (int[])state.Board.Clone(),
                     ActivePlayer = -state.ActivePlayer,
                     LastMove = Tuple.Create(-1, i, -1),
                     WhiteUnplayed = state.ActivePlayer == 1 ? Math.Max(0, state.WhiteUnplayed - 1) : state.WhiteUnplayed,
@@ -171,6 +170,14 @@ namespace GameFrame.Games
                     BlackRemaining = state.BlackRemaining,
                     StatesVisited = state.StatesVisited,
                 };
+                //if (state.ActivePlayer == 1 && state.WhiteUnplayed > 0)
+                //{
+                //    state.WhiteUnplayed -= 1;
+                //}
+                //else if (state.ActivePlayer == -1 && state.BlackUnplayed > 0)
+                //{
+                //    state.BlackUnplayed -= 1;
+                //}
                 successor.Board[i] = state.ActivePlayer;
                 foreach (var millSuccessor in ExpandMill(successor))
                 {
@@ -179,44 +186,48 @@ namespace GameFrame.Games
             }
         }
 
-        private IEnumerable<NineMensMorrisState> ExpandMill(NineMensMorrisState state)
+        private List<NineMensMorrisState> ExpandMill(NineMensMorrisState state)
         {
+            var mills = new List<NineMensMorrisState>(9);
             if (!MillCompleted(state))
             {
-                yield return state;
-                yield break;
+                mills.Add(state);
             }
-            var removableEnemies = GetRemovableEnemies(state);
-            foreach (var removableEnemy in removableEnemies)
+            else
             {
-                var successor = new NineMensMorrisState()
+                var removableEnemies = GetRemovableEnemies(state);
+                foreach (var removableEnemy in removableEnemies)
                 {
-                    Board = (int?[])state.Board.Clone(),
-                    ActivePlayer = state.ActivePlayer,
-                    LastMove = Tuple.Create(state.LastMove.Item1, state.LastMove.Item2, removableEnemy),
-                    WhiteUnplayed = state.WhiteUnplayed,
-                    BlackUnplayed = state.BlackUnplayed,
-                    WhiteRemaining = state.WhiteRemaining,
-                    BlackRemaining = state.BlackRemaining,
-                    StatesVisited = state.StatesVisited,
-                };
-                if (successor.ActivePlayer == 1)
-                {
-                    successor.WhiteRemaining -= 1;
+                    var successor = new NineMensMorrisState()
+                    {
+                        Board = (int[])state.Board.Clone(),
+                        ActivePlayer = state.ActivePlayer,
+                        LastMove = Tuple.Create(state.LastMove.Item1, state.LastMove.Item2, removableEnemy),
+                        WhiteUnplayed = state.WhiteUnplayed,
+                        BlackUnplayed = state.BlackUnplayed,
+                        WhiteRemaining = state.WhiteRemaining,
+                        BlackRemaining = state.BlackRemaining,
+                        StatesVisited = state.StatesVisited,
+                    };
+                    if (successor.ActivePlayer == 1)
+                    {
+                        successor.WhiteRemaining -= 1;
+                    }
+                    else
+                    {
+                        successor.BlackRemaining -= 1;
+                    }
+                    successor.Board[removableEnemy] = 0;
+                    mills.Add(successor);
                 }
-                else
-                {
-                    successor.BlackRemaining -= 1;
-                }
-                successor.Board[removableEnemy] = null;
-                yield return successor;
             }
+            return mills;
         }
 
         private bool MillCompleted(NineMensMorrisState state)
         {
             int lastPosition = state.LastMove.Item2;
-            var player = state.Board[lastPosition].Value;
+            var player = state.Board[lastPosition];
             var millChecks = Mills[lastPosition];
             foreach (var millCheck in millChecks)
             {
@@ -266,10 +277,10 @@ namespace GameFrame.Games
             var activeStones = new List<int>(holes);
             for (int i = 0; i < holes; i++)
             {
-                int? v = state.Board[i];
-                if (v.HasValue)
+                int v = state.Board[i];
+                if (v != 0)
                 {
-                    if (v.Value == state.ActivePlayer)
+                    if (v == state.ActivePlayer)
                     {
                         activeStones.Add(i);
                     }
@@ -286,7 +297,7 @@ namespace GameFrame.Games
                     if (!empties.Contains(destination)) continue;
                     var successor = new NineMensMorrisState()
                     {
-                        Board = (int?[])state.Board.Clone(),
+                        Board = (int[])state.Board.Clone(),
                         ActivePlayer = -state.ActivePlayer,
                         LastMove = Tuple.Create(activeStone, destination, -1),
                         WhiteUnplayed = 0,
@@ -295,7 +306,7 @@ namespace GameFrame.Games
                         BlackRemaining = state.BlackRemaining,
                         StatesVisited = state.StatesVisited,
                     };
-                    successor.Board[activeStone] = null;
+                    successor.Board[activeStone] = 0;
                     successor.Board[destination] = state.ActivePlayer;
                     foreach (var millSuccessor in ExpandMill(successor))
                     {
@@ -368,10 +379,10 @@ namespace GameFrame.Games
             var activeStones = new List<int>(holes);
             for (int i = 0; i < holes; i++)
             {
-                int? v = state.Board[i];
-                if (v.HasValue)
+                int v = state.Board[i];
+                if (v != 0)
                 {
-                    if (v.Value == state.ActivePlayer)
+                    if (v == state.ActivePlayer)
                     {
                         activeStones.Add(i);
                     }
@@ -387,7 +398,7 @@ namespace GameFrame.Games
                 {
                     var successor = new NineMensMorrisState()
                     {
-                        Board = (int?[])state.Board.Clone(),
+                        Board = (int[])state.Board.Clone(),
                         ActivePlayer = -state.ActivePlayer,
                         LastMove = Tuple.Create(activeStone, destination, -1),
                         WhiteUnplayed = 0,
@@ -396,7 +407,7 @@ namespace GameFrame.Games
                         BlackRemaining = state.BlackRemaining,
                         StatesVisited = state.StatesVisited,
                     };
-                    successor.Board[activeStone] = null;
+                    successor.Board[activeStone] = 0;
                     successor.Board[destination] = state.ActivePlayer;
                     foreach (var millSuccessor in ExpandMill(successor))
                     {

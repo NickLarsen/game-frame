@@ -32,7 +32,7 @@ namespace GameServer
                 .ToArray();
             var state = new NineMensMorrisState()
             {
-                Board = new int?[24],
+                Board = new int[24],
                 ActivePlayer = 1,
                 LastMove = Tuple.Create(-1, -1, -1),
                 WhiteUnplayed = 9,
@@ -47,7 +47,7 @@ namespace GameServer
                 // set the move
                 state.LastMove = move;
                 // alter the board and pieces info
-                if (move.Item1 >= 0) state.Board[move.Item1] = null;
+                if (move.Item1 >= 0) state.Board[move.Item1] = 0;
                 state.Board[move.Item2] = state.ActivePlayer;
                 if (state.InPhase1())
                 {
@@ -56,7 +56,7 @@ namespace GameServer
                 }
                 if (move.Item3 >= 0)
                 {
-                    state.Board[move.Item3] = null;
+                    state.Board[move.Item3] = 0;
                     if (state.ActivePlayer == 1) state.BlackRemaining -= 1;
                     else state.WhiteRemaining -= 1;
                 }
