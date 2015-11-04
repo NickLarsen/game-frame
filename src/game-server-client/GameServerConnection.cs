@@ -27,7 +27,7 @@ namespace GameServer
             IPHostEntry ipHostInfo = Dns.GetHostEntry(ipAddress);
             IPAddress ipAddressReal = ipHostInfo.AddressList[0];
             IPEndPoint remoteEP = new IPEndPoint(ipAddressReal, port);
-            CommandLineDescription = ipAddress + ":" + port;
+            CommandLineDescription = remoteEP.ToString();
             socket = new Socket(ipAddressReal.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(remoteEP);
             InitiateReceive(HandshakeCallback);
@@ -54,13 +54,30 @@ namespace GameServer
         private void HandshakeCallback(IAsyncResult ar)
         {
             int bytesRead = socket.EndReceive(ar);
-            var response = Encoding.ASCII.GetString(buffer, 0, bytesRead - 1);
-            // TODO: handle error cases
-            if (response != name)
+            if (bytesRead > 0)
             {
-                throw new Exception("Unable to complete handshake: " + response);
+                var value = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                sb.Append(value);
+                if (value[bytesRead - 1] == responseTerminator)
+                {
+                    var message = sb.Remove(sb.Length - 1, 1).ToString();
+                    // TODO: handle error cases
+                    if (message != name)
+                    {
+                        throw new Exception("Unable to complete handshake: " + message);
+                    }
+                    sb.Clear();
+                    InitiateReceive(ReceiveCallback);
+                }
+                else
+                {
+                    InitiateReceive(HandshakeCallback);
+                }
             }
-            InitiateReceive(ReceiveCallback);
+            else
+            {
+                InitiateReceive(HandshakeCallback);
+            }
         }
 
         private void ReceiveCallback(IAsyncResult ar)

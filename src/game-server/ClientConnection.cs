@@ -40,13 +40,30 @@ namespace GameServer
             HandleDisconnect(() =>
             {
                 int bytesRead = socket.EndReceive(ar);
-                Name = Encoding.ASCII.GetString(buffer, 0, bytesRead - 1);
-                // TODO: handle error cases
-                InitiateReceive(ReceiveCallback);
-                Send(Name);
-                if (OnConnected != null)
+                if (bytesRead > 0)
                 {
-                    OnConnected(this);
+                    var value = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                    sb.Append(value);
+                    if (value[bytesRead - 1] == responseTerminator)
+                    {
+                        var message = sb.Remove(sb.Length - 1, 1).ToString();
+                        Name = message;
+                        sb.Clear();
+                        InitiateReceive(ReceiveCallback);
+                        Send(Name);
+                        if (OnConnected != null)
+                        {
+                            OnConnected(this);
+                        }
+                    }
+                    else
+                    {
+                        InitiateReceive(HandshakeCallback);
+                    }
+                }
+                else
+                {
+                    InitiateReceive(HandshakeCallback);
                 }
             });
         }
@@ -55,7 +72,6 @@ namespace GameServer
         {
             HandleDisconnect(() =>
             {
-                // TODO: catch forcibly closed connections and gracefully disconnect
                 int bytesRead = socket.EndReceive(ar);
                 if (bytesRead > 0)
                 {
