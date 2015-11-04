@@ -26,7 +26,7 @@ namespace GameServer
             listener.Bind(localEndPoint);
             listener.Listen(100);
             AcceptNext();
-            Log("Server started, waiting for connections...");
+            Log("Server started (" + localEndPoint + "), waiting for connections...");
         }
 
         public void Stop()
