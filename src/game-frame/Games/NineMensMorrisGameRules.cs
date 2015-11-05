@@ -273,7 +273,6 @@ namespace GameFrame.Games
         private IEnumerable<NineMensMorrisState> ExpandPhase2(NineMensMorrisState state)
         {
             var holes = state.Board.Length;
-            var empties = new HashSet<int>();
             var activeStones = new List<int>(holes);
             for (int i = 0; i < holes; i++)
             {
@@ -285,16 +284,12 @@ namespace GameFrame.Games
                         activeStones.Add(i);
                     }
                 }
-                else
-                {
-                    empties.Add(i);
-                }
             }
             foreach (var activeStone in activeStones)
             {
                 foreach (var destination in Phase2MoveMap[activeStone])
                 {
-                    if (!empties.Contains(destination)) continue;
+                    if (state.Board[destination] != 0) continue;
                     var successor = new NineMensMorrisState()
                     {
                         Board = (int[])state.Board.Clone(),
