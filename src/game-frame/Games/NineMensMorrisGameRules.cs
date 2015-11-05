@@ -253,18 +253,23 @@ namespace GameFrame.Games
             foreach (var location in enemyLocations)
             {
                 if (inMills.Contains(location)) continue;
+                var isMill = false;
                 foreach (var mill in Mills[location])
                 {
-                    var isMill = mill.All(enemyLocations.Contains);
+                    isMill = mill.All(enemyLocations.Contains);
                     if (isMill)
                     {
-                        inMills.Add(location);
                         foreach (var i in mill) inMills.Add(i);
+                        break;
                     }
-                    else
-                    {
-                        notInMills.Add(location);
-                    }
+                }
+                if (isMill)
+                {
+                    inMills.Add(location);
+                }
+                else
+                {
+                    notInMills.Add(location);
                 }
             }
             return notInMills.Count > 0 ? notInMills : inMills;

@@ -14,8 +14,8 @@ namespace ConsoleTester
         {
             debug = args.Any(m => m == "-debug");
             //PlayTicTacToe();
-            PlayNineMensMorris();
-            //TestNineMensMorris();
+            //PlayNineMensMorris();
+            TestNineMensMorris();
         }
 
         static void PlayTicTacToe()
@@ -31,7 +31,7 @@ namespace ConsoleTester
         static void PlayNineMensMorris()
         {
             var rules = new NineMensMorrisGameRules();
-            int? randomSeed = 1;
+            int? randomSeed = 2;
             int millisecondsPerTurn = 10000;
             var p1 = new NegamaxPlayer<NineMensMorrisState>(rules, 1, millisecondsPerTurn, 1.5f, randomSeed);
             var p2 = new NegamaxPlayer<NineMensMorrisState>(rules, -1, millisecondsPerTurn, 1.5f, randomSeed);
@@ -45,17 +45,29 @@ namespace ConsoleTester
             var p1 = new NegamaxPlayer<NineMensMorrisState>(rules, 1, 9950, 1.5f, randomSeed: 1);
             var state = new NineMensMorrisState()
             {
-                ActivePlayer = -1,
-                BlackUnplayed = 1,
-                BlackRemaining = 9,
+                ActivePlayer = 1,
+                BlackUnplayed = 0,
+                BlackRemaining = 6,
                 WhiteUnplayed = 0,
-                WhiteRemaining = 8,
-                Board = new int[] { 1, 1, -1, 0, 1, 0, 0, -1, 0, 1, -1, 0, 1, 0, -1, 0, -1, 0, -1, 1, 1, -1, 1, -1 },
-                LastMove = Tuple.Create(-1, 12, -1),
+                WhiteRemaining = 7,
+                Board = new int[] { 0, 0, 0,
+                                   -1, 1, 0,
+                                    0, 0, 1,
+                             0, -1, 1,    0, 1, 1,
+                                   -1, -1, 1,
+                                    -1, 1, 1,
+                                    -1, 0, 0 },
+                LastMove = Tuple.Create(9, 21, -1),
                 RepeatedState = false,
                 StatesVisited = new HashSet<long>(),
             };
-            var result = p1.MakeMove(state);
+            var successors = rules.Expand(state).Where(m => m.Board[12] == 1 && m.Board[13] == 0);
+            foreach (var s in successors)
+            {
+                Console.WriteLine(s.ToString());
+            }
+            //var result = p1.MakeMove(state);
+            int i = 0;
         }
 
         static void PlayGame<T>(GameRules<T> rules, Player<T> p1, Player<T> p2, T state) where T : IState
