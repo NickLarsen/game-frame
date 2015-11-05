@@ -188,10 +188,10 @@ namespace GameFrame.Games
 
         private List<NineMensMorrisState> ExpandMill(NineMensMorrisState state)
         {
-            var mills = new List<NineMensMorrisState>(9);
+            var states = new List<NineMensMorrisState>(9);
             if (!MillCompleted(state))
             {
-                mills.Add(state);
+                states.Add(state);
             }
             else
             {
@@ -218,10 +218,10 @@ namespace GameFrame.Games
                         successor.BlackRemaining -= 1;
                     }
                     successor.Board[removableEnemy] = 0;
-                    mills.Add(successor);
+                    states.Add(successor);
                 }
             }
-            return mills;
+            return states;
         }
 
         private bool MillCompleted(NineMensMorrisState state)
