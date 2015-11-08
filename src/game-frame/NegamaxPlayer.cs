@@ -43,12 +43,13 @@ namespace GameFrame
                 maxDepth = depth - 1;
                 float best = float.MinValue;
                 List<TState> bestMoves = new List<TState>();
+                var alpha = float.MinValue;
                 foreach (var successor in possibleMoves)
                 {
                     var timeRunning = DateTime.UtcNow - start;
                     if (!ignoringTimer && timeRunning.TotalMilliseconds > MillisecondsPerMove) break;
                     successor.PreRun();
-                    var value = -Negamax(successor, depth-1, float.MinValue, float.MaxValue);
+                    var value = -Negamax(successor, depth-1, float.MinValue, -alpha);
                     successor.PostRun();
                     Console.WriteLine(successor.LastMoveDescription() + ": " + value);
                     if (value > best)
@@ -60,6 +61,7 @@ namespace GameFrame
                     {
                         bestMoves.Add(successor);
                     }
+                    alpha = Math.Max(alpha, value);
                 }
                 var failCheck = DateTime.UtcNow - start;
                 if (!ignoringTimer && bestOverall != null && failCheck.TotalMilliseconds > MillisecondsPerMove) break;
