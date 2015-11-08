@@ -14,16 +14,15 @@ namespace ConsoleTester
         {
             debug = args.Any(m => m == "-debug");
             //PlayTicTacToe();
-            //PlayNineMensMorris();
-            TestNineMensMorris();
+            PlayNineMensMorris();
+            //TestNineMensMorris();
         }
 
         static void PlayTicTacToe()
         {
             var rules = new TicTacToeGameRules();
-            int? randomSeed = null;
-            var p1 = new NegamaxPlayer<TicTacToeState>(rules, 1, 950, 2f, randomSeed);
-            var p2 = new NegamaxPlayer<TicTacToeState>(rules, -1, 950, 2f, randomSeed);
+            var p1 = new NegamaxPlayer<TicTacToeState>(rules, 1, 950, 2f, randomSeed: null);
+            var p2 = new NegamaxPlayer<TicTacToeState>(rules, -1, 950, 2f, randomSeed: null);
             var state = TicTacToeState.Empty;
             PlayGame(rules, p1, p2, state);
         }
@@ -31,10 +30,9 @@ namespace ConsoleTester
         static void PlayNineMensMorris()
         {
             var rules = new NineMensMorrisGameRules();
-            int? randomSeed = 2;
             int millisecondsPerTurn = 10000;
-            var p1 = new NegamaxPlayer<NineMensMorrisState>(rules, 1, millisecondsPerTurn, 1.5f, randomSeed);
-            var p2 = new NegamaxPlayer<NineMensMorrisState>(rules, -1, millisecondsPerTurn, 1.5f, randomSeed);
+            var p1 = new NegamaxPlayer<NineMensMorrisState>(rules, 1, millisecondsPerTurn, 1.5f, randomSeed: 2);
+            var p2 = new NegamaxPlayer<NineMensMorrisState>(rules, -1, millisecondsPerTurn, 1.5f, randomSeed: 3);
             var state = NineMensMorrisState.Empty;
             PlayGame(rules, p1, p2, state);
         }
