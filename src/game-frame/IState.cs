@@ -5,7 +5,7 @@ namespace GameFrame
     public interface IState
     {
         int ActivePlayer { get; set; }
-        long GetStateHash();
+        ulong GetStateHash();
         int GetHistoryHash();
         float GetHeuristicValue(); // this function should never return 0f else finding certain ties gets much harder
         string LastMoveDescription();

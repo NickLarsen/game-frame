@@ -10,7 +10,7 @@ namespace GameFrame
         public int MillisecondsPerMove { get; }
         public float HistoryPowerBase { get; }
 
-        private Dictionary<long, TranspositionTableEntry> transpositionTable;
+        private Dictionary<ulong, TranspositionTableEntry> transpositionTable;
         private Dictionary<int, long> historyScores;
         private long evals;
         private int maxDepth;
@@ -34,7 +34,7 @@ namespace GameFrame
         {
             start = DateTime.UtcNow;
             evals = 0;
-            transpositionTable = new Dictionary<long, TranspositionTableEntry>();
+            transpositionTable = new Dictionary<ulong, TranspositionTableEntry>();
             historyScores = new Dictionary<int, long>();
             List<TState> bestOverall = null;
             var possibleMoves = GameRules.Expand(state);
@@ -182,7 +182,7 @@ namespace GameFrame
             }
         }
 
-        private TranspositionTableEntry ttLookup(long key)
+        private TranspositionTableEntry ttLookup(ulong key)
         {
             if (transpositionTable.ContainsKey(key))
             {
@@ -194,7 +194,7 @@ namespace GameFrame
             };
         }
 
-        private void ttStore(long key, TranspositionTableEntry entry)
+        private void ttStore(ulong key, TranspositionTableEntry entry)
         {
             transpositionTable[key] = entry;
         }

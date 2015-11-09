@@ -50,7 +50,7 @@ namespace GameServer
                 WhiteRemaining = 9,
                 BlackUnplayed = 9,
                 BlackRemaining = 9,
-                StatesVisited = new HashSet<long>(),
+                StatesVisited = new HashSet<ulong>(),
                 RepeatedState = false,
             };
             foreach (var move in moves)

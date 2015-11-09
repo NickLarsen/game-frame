@@ -14,10 +14,10 @@ namespace GameFrame.Games
         public int WhiteRemaining { get; set; }
         public int BlackUnplayed { get; set; }
         public int BlackRemaining { get; set; }
-        public HashSet<long> StatesVisited { get; set; } 
+        public HashSet<ulong> StatesVisited { get; set; } 
         public bool RepeatedState { get; set; }
 
-        public long GetStateHash()
+        public ulong GetStateHash()
         {
             long hash = 0;
             for (int i = 0; i < Board.Length; i++)
@@ -80,7 +80,7 @@ namespace GameFrame.Games
             WhiteRemaining = 9,
             BlackUnplayed = 9,
             BlackRemaining = 9,
-            StatesVisited = new HashSet<long>(),
+            StatesVisited = new HashSet<ulong>(),
             RepeatedState = false,
         };
 

@@ -11,14 +11,14 @@ namespace GameFrame.Games
         public int ActivePlayer { get; set; }
         public int LastMove { get; set; }
 
-        public long GetStateHash()
+        public ulong GetStateHash()
         {
-            long hash = 0;
+            ulong hash = 0;
             for (int i = 0; i < Board.Length; i++)
             {
                 int? stone = Board[i];
                 hash <<= 2;
-                hash |= stone == 1 ? 1L : (stone == -1 ? 2L : 0L);
+                hash |= stone == 1 ? 1UL : (stone == -1 ? 2UL : 0UL);
             }
             return hash;
         }
