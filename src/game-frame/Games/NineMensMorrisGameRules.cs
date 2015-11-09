@@ -7,6 +7,8 @@ namespace GameFrame.Games
 {
     public class NineMensMorrisState : IState
     {
+        public const int BoardLength = 24;
+
         public int[] Board { get; set; }
         public int ActivePlayer { get; set; }
         public Tuple<int, int, int> LastMove { get; set; }
@@ -38,7 +40,7 @@ namespace GameFrame.Games
         {
             var pieceAdvantage = (WhiteRemaining - BlackRemaining) * ActivePlayer / 10f;
             int adjacentCount = 0;
-            for (int i = 0; i < Board.Length; i++)
+            for (int i = 0; i < BoardLength; i++)
             {
                 if (Board[i] == ActivePlayer)
                 {
@@ -73,7 +75,7 @@ namespace GameFrame.Games
 
         public static NineMensMorrisState Empty => new NineMensMorrisState()
         {
-            Board = new int[24],
+            Board = new int[BoardLength],
             ActivePlayer = 1,
             LastMove = Tuple.Create(-1, -1, -1),
             WhiteUnplayed = 9,
@@ -133,7 +135,7 @@ namespace GameFrame.Games
         {
             var enemy = player * -1;
             var enemyLocations = new HashSet<int>();
-            for (int i = 0; i < Board.Length; i++)
+            for (int i = 0; i < BoardLength; i++)
             {
                 if (Board[i] == enemy)
                 {
@@ -262,7 +264,7 @@ namespace GameFrame.Games
 
         private IEnumerable<NineMensMorrisState> ExpandPhase1(NineMensMorrisState state)
         {
-            for (int i = 0; i < state.Board.Length; i++)
+            for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
             {
                 if (state.Board[i] != 0) continue;
                 var move = Tuple.Create(-1, i, -1);
