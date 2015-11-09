@@ -18,7 +18,7 @@ namespace GameFrame.Games
         public HashSet<ulong> StatesVisited { get; set; } 
         public bool RepeatedState { get; set; }
 
-        private ulong boardHash { get; set; }
+        private ulong boardHash;
 
         public ulong GetStateHash()
         {
@@ -34,10 +34,10 @@ namespace GameFrame.Games
         {
             var pieceAdvantage = (WhiteRemaining - BlackRemaining) * ActivePlayer / 10f;
             int adjacentCount = 0;
+            ulong playerCheck = GetActivePlayerHashCheck();
             for (int i = 0; i < BoardLength; i++)
             {
-                int cellPlayer = GetCellPlayer(i);
-                if (cellPlayer == ActivePlayer)
+                if (((boardHash >> (i * 2)) & 3UL) == playerCheck)
                 {
                     adjacentCount += NineMensMorrisGameRules.Phase2MoveMap[i].Length;
                 }
@@ -46,11 +46,9 @@ namespace GameFrame.Games
             return pieceAdvantage + movability;
         }
 
-        public int GetCellPlayer(int cell)
+        public ulong GetActivePlayerHashCheck()
         {
-            var cellValue = (boardHash >> (cell * 2)) & 3UL;
-            int cellPlayer = cellValue == 2UL ? -1 : (int)cellValue;
-            return cellPlayer;
+            return ActivePlayer == 1 ? 1UL : 2UL;
         }
 
         public int GetTotalMoves()
@@ -187,7 +185,7 @@ namespace GameFrame.Games
             var board = new int[BoardLength];
             for (int i = 0; i < BoardLength; i++)
             {
-                board[i] = GetCellPlayer(i);
+                board[i] = (int)((boardHash >> (i * 2)) & 3UL);
             }
             return board;
         }
@@ -305,10 +303,11 @@ namespace GameFrame.Games
 
         private List<NineMensMorrisState> ExpandPhase1(NineMensMorrisState state)
         {
+            ulong boardHash = state.GetStateHash();
             var successors = new List<NineMensMorrisState>(24);
             for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
             {
-                if (state.GetCellPlayer(i) != 0) continue;
+                if (((boardHash >> (i * 2)) & 3UL) != 0UL) continue;
                 var move = Tuple.Create(-1, i, -1);
                 if (state.CompletesMill(move))
                 {
@@ -330,13 +329,15 @@ namespace GameFrame.Games
 
         private List<NineMensMorrisState> ExpandPhase2(NineMensMorrisState state)
         {
+            ulong boardHash = state.GetStateHash();
+            ulong activePlayerCheck = state.GetActivePlayerHashCheck();
             var successors = new List<NineMensMorrisState>(16);
             for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
             {
-                if (state.GetCellPlayer(i) != state.ActivePlayer) continue;
+                if (((boardHash >> (i * 2)) & 3UL) != activePlayerCheck) continue;
                 foreach (var destination in Phase2MoveMap[i])
                 {
-                    if (state.GetCellPlayer(destination) != 0) continue;
+                    if (((boardHash >> (destination * 2)) & 3UL) != 0UL) continue;
                     var move = Tuple.Create(i, destination, -1);
                     if (state.CompletesMill(move))
                     {
@@ -387,17 +388,19 @@ namespace GameFrame.Games
 
         private List<NineMensMorrisState> ExpandPhase3(NineMensMorrisState state)
         {
+            var boardHash = state.GetStateHash();
+            var activePlayerCheck = state.GetActivePlayerHashCheck();
             var successors = new List<NineMensMorrisState>(16);
             var empties = new List<int>(NineMensMorrisState.BoardLength);
             var activeStones = new List<int>(NineMensMorrisState.BoardLength);
             for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
             {
-                int v = state.GetCellPlayer(i);
-                if (v == 0)
+                ulong v = ((boardHash >> (i * 2)) & 3UL);
+                if (v == 0UL)
                 {
                     empties.Add(i);
                 }
-                else if (v == state.ActivePlayer)
+                else if (v == activePlayerCheck)
                 {
                     activeStones.Add(i);
                 }
@@ -443,12 +446,14 @@ namespace GameFrame.Games
 
         private bool AnyPhase2Moves(NineMensMorrisState state)
         {
+            ulong boardHash = state.GetStateHash();
+            var activePlayerCheck = state.GetActivePlayerHashCheck();
             for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
             {
-                if (state.GetCellPlayer(i) != state.ActivePlayer) continue;
+                if (((boardHash >> (i * 2)) & 3UL) != activePlayerCheck) continue;
                 foreach (var destination in Phase2MoveMap[i])
                 {
-                    if (state.GetCellPlayer(destination) == 0) return true;
+                    if (((boardHash >> (destination * 2)) & 3UL) == 0UL) return true;
                 }
             }
             return false;
