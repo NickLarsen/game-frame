@@ -130,7 +130,9 @@ namespace GameFrame
             {
                 var timeRunning = DateTime.UtcNow - start;
                 if (!ignoringTimer && timeRunning.TotalMilliseconds > MillisecondsPerMove) break;
+                successor.PreRun();
                 var value = -Negamax(successor, depth-1, -beta, -alpha);
+                successor.PostRun();
                 best = Math.Max(best, value);
                 alpha = Math.Max(alpha, value);
                 if (alpha >= beta)
