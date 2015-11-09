@@ -86,7 +86,7 @@ namespace GameFrame.Games
         {
             var successor = new NineMensMorrisState()
             {
-                boardHash = boardHash ^ (1UL << (25 * 2)), //indicate who's turn it is outside of the board range
+                boardHash = boardHash ^ (1UL << (25 * 2)), //indicate who's turn it is outside of the board range, has to be > 24 because we're going to shift later
                 Board = (int[])Board.Clone(),
                 ActivePlayer = -ActivePlayer,
                 LastMove = move,
@@ -120,14 +120,13 @@ namespace GameFrame.Games
 
         public bool CompletesMill(Tuple<int, int, int> move)
         {
-            var successorBoard = ApplyMove(move).Board;
-            int lastPosition = move.Item2;
-            var millChecks = Mills[lastPosition];
-            foreach (var millCheck in millChecks)
-            {
-                var completedMill = millCheck.All(m => successorBoard[m] == ActivePlayer);
-                if (completedMill) return true;
-            }
+            var successorBoard = ApplyMove(move).boardHash;
+            ulong activePlayerStones = (successorBoard >> (ActivePlayer == 1 ? 0 : 1)) & 0x555555555555UL;
+            int millLocation = move.Item2 * 2;
+            ulong millCheck = FastMills[millLocation];
+            if ((millCheck & activePlayerStones) == millCheck) return true;
+            millCheck = FastMills[++millLocation];
+            if ((millCheck & activePlayerStones) == millCheck) return true;
             return false;
         }
 
@@ -236,6 +235,34 @@ namespace GameFrame.Games
             new int[][] { new int[] { 22, 23 }, new int[] { 0, 9 } },
             new int[][] { new int[] { 21, 23 }, new int[] { 16, 19 } },
             new int[][] { new int[] { 21, 22 }, new int[] { 2, 14 } },
+        };
+
+        private static readonly ulong[] FastMills = new ulong[]
+        {
+            1UL <<  2 | 1UL <<  4, 1UL << 18 | 1UL << 42,// { new int[] { 1, 2 }, new int[] { 9, 21 } } ,
+            1UL <<  0 | 1UL <<  4, 1UL <<  8 | 1UL << 14,// { new int[] { 0, 2 }, new int[] { 4, 7 } },
+            1UL <<  0 | 1UL <<  2, 1UL << 28 | 1UL << 46,// { new int[] { 0, 1 }, new int[] { 14, 23 } },
+            1UL <<  8 | 1UL << 10, 1UL << 20 | 1UL << 36,// { new int[] { 4, 5 }, new int[] { 10, 18 } },
+            1UL <<  6 | 1UL << 10, 1UL <<  2 | 1UL << 14,// { new int[] { 3, 5 }, new int[] { 1, 7 } },
+            1UL <<  6 | 1UL <<  8, 1UL << 26 | 1UL << 40,// { new int[] { 3, 4 }, new int[] { 13, 20 } },
+            1UL << 14 | 1UL << 16, 1UL << 22 | 1UL << 30,// { new int[] { 7, 8 }, new int[] { 11, 15 } },
+            1UL << 12 | 1UL << 16, 1UL <<  2 | 1UL <<  8,// { new int[] { 6, 8 }, new int[] { 1, 4 } },
+            1UL << 12 | 1UL << 14, 1UL << 24 | 1UL << 34,// { new int[] { 6, 7 }, new int[] { 12, 17 } },
+            1UL << 20 | 1UL << 22, 1UL <<  0 | 1UL << 42,// { new int[] { 10, 11 }, new int[] { 0, 21 } },
+            1UL << 18 | 1UL << 22, 1UL <<  6 | 1UL << 36,// { new int[] { 9, 11 }, new int[] { 3, 18 } },
+            1UL << 18 | 1UL << 20, 1UL << 12 | 1UL << 30,// { new int[] { 9, 10 }, new int[] { 6, 15 } },
+            1UL << 26 | 1UL << 28, 1UL << 16 | 1UL << 34,// { new int[] { 13, 14 }, new int[] { 8, 17 } },
+            1UL << 24 | 1UL << 28, 1UL << 10 | 1UL << 40,// { new int[] { 12, 14 }, new int[] { 5, 20 } },
+            1UL << 24 | 1UL << 26, 1UL <<  4 | 1UL << 46,// { new int[] { 12, 13 }, new int[] { 2, 23 } },
+            1UL << 32 | 1UL << 34, 1UL << 12 | 1UL << 22,// { new int[] { 16, 17 }, new int[] { 6, 11 } },
+            1UL << 30 | 1UL << 34, 1UL << 38 | 1UL << 44,// { new int[] { 15, 17 }, new int[] { 19, 22 } },
+            1UL << 30 | 1UL << 32, 1UL << 16 | 1UL << 24,// { new int[] { 15, 16 }, new int[] { 8, 12 } },
+            1UL << 38 | 1UL << 40, 1UL <<  6 | 1UL << 20,// { new int[] { 19, 20 }, new int[] { 3, 10 } },
+            1UL << 36 | 1UL << 40, 1UL << 32 | 1UL << 44,// { new int[] { 18, 20 }, new int[] { 16, 22 } },
+            1UL << 36 | 1UL << 38, 1UL << 10 | 1UL << 26,// { new int[] { 18, 19 }, new int[] { 5, 13 } },
+            1UL << 44 | 1UL << 46, 1UL <<  0 | 1UL << 18,// { new int[] { 22, 23 }, new int[] { 0, 9 } },
+            1UL << 42 | 1UL << 46, 1UL << 32 | 1UL << 38,// { new int[] { 21, 23 }, new int[] { 16, 19 } },
+            1UL << 42 | 1UL << 44, 1UL <<  4 | 1UL << 28,// { new int[] { 21, 22 }, new int[] { 2, 14 } },
         };
     }
 
