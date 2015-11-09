@@ -125,11 +125,11 @@ namespace GameFrame.Games
             var successorBoard = ApplyMove(move).boardHash;
             ulong activePlayerStones = (successorBoard >> (ActivePlayer == 1 ? 0 : 1)) & 0x555555555555UL;
             int millLocation = move.Item2 * 2;
-            ulong millCheck = FastMills[millLocation];
-            if ((millCheck & activePlayerStones) == millCheck) return true;
-            millCheck = FastMills[++millLocation];
-            if ((millCheck & activePlayerStones) == millCheck) return true;
-            return false;
+            ulong millCheck = FastMills[millLocation++];
+            bool completesMill = (millCheck & activePlayerStones) == millCheck;
+            millCheck = FastMills[millLocation];
+            completesMill |= (millCheck & activePlayerStones) == millCheck;
+            return completesMill;
         }
 
         public IEnumerable<int> GetRemovableEnemies(int player)
