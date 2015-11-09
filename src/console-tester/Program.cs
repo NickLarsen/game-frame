@@ -41,24 +41,8 @@ namespace ConsoleTester
         {
             var rules = new NineMensMorrisGameRules();
             var p1 = new NegamaxPlayer<NineMensMorrisState>(rules, 1, 9950, 1.5f, randomSeed: 2);
-            var state = new NineMensMorrisState()
-            {
-                ActivePlayer = 1,
-                BlackUnplayed = 9,
-                BlackRemaining = 9,
-                WhiteUnplayed = 9,
-                WhiteRemaining = 9,
-                Board = new int[] { 0,  0,  0,
-                                    0,  0,  0,
-                                    0,  0,  0,
-                            0,  0,  0,      0,  0,  0,
-                                    0,  0,  0,
-                                    0,  0,  0,
-                                    0,  0,  0 },
-                LastMove = Tuple.Create(-1, -1, -1),
-                RepeatedState = false,
-                StatesVisited = new HashSet<ulong>(),
-            };
+            var stateString = "";
+            var state = BuildNineMensMorrisState(stateString);
             //var successors = rules.Expand(state);//.Where(m => m.Board[12] == 1 && m.Board[13] == 0);
             //int h = 1;
             //foreach (var s in successors)//.Skip(0).Take(3))
@@ -68,6 +52,21 @@ namespace ConsoleTester
             //}
             var result = p1.MakeMove(state);
             int i = 0;
+        }
+
+        private static NineMensMorrisState BuildNineMensMorrisState(string serverState)
+        {
+            var moves = serverState.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                .Select(m => m.Split(','))
+                .Select(m => Tuple.Create(int.Parse(m[0]), int.Parse(m[1]), int.Parse(m[2])))
+                .ToArray();
+            var state = NineMensMorrisState.Empty;
+            foreach (var move in moves)
+            {
+                state.ApplyMove(move);
+                state.PreRun(); // updates visited states for draw tracking
+            }
+            return state;
         }
 
         static void PlayGame<T>(GameRules<T> rules, Player<T> p1, Player<T> p2, T state) where T : IState

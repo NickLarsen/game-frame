@@ -30,40 +30,11 @@ namespace GameServer
                 .Select(m => m.Split(','))
                 .Select(m => Tuple.Create(int.Parse(m[0]), int.Parse(m[1]), int.Parse(m[2])))
                 .ToArray();
-            var state = new NineMensMorrisState()
-            {
-                Board = new int[24],
-                ActivePlayer = 1,
-                LastMove = Tuple.Create(-1, -1, -1),
-                WhiteUnplayed = 9,
-                WhiteRemaining = 9,
-                BlackUnplayed = 9,
-                BlackRemaining = 9,
-                StatesVisited = new HashSet<ulong>(),
-                RepeatedState = false,
-            };
+            var state = NineMensMorrisState.Empty;
             foreach (var move in moves)
             {
-                // set the move
-                state.LastMove = move;
-                // alter the board and pieces info
-                if (move.Item1 >= 0) state.Board[move.Item1] = 0;
-                state.Board[move.Item2] = state.ActivePlayer;
-                if (state.InPhase1())
-                {
-                    if (state.ActivePlayer == 1) state.WhiteUnplayed -= 1;
-                    else state.BlackUnplayed -= 1;
-                }
-                if (move.Item3 >= 0)
-                {
-                    state.Board[move.Item3] = 0;
-                    if (state.ActivePlayer == 1) state.BlackRemaining -= 1;
-                    else state.WhiteRemaining -= 1;
-                }
-                // update the player
-                state.ActivePlayer *= -1;
-                // track visited states
-                state.PreRun();
+                state.ApplyMove(move);
+                state.PreRun(); // updates visited states for draw tracking
             }
             return state;
         }
