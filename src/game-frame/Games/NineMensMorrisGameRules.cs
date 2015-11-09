@@ -287,30 +287,18 @@ namespace GameFrame.Games
 
         private IEnumerable<NineMensMorrisState> ExpandPhase2(NineMensMorrisState state)
         {
-            var holes = state.Board.Length;
-            var activeStones = new List<int>(holes);
-            for (int i = 0; i < holes; i++)
+            for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
             {
-                int v = state.Board[i];
-                if (v != 0)
-                {
-                    if (v == state.ActivePlayer)
-                    {
-                        activeStones.Add(i);
-                    }
-                }
-            }
-            foreach (var activeStone in activeStones)
-            {
-                foreach (var destination in Phase2MoveMap[activeStone])
+                if (state.Board[i] != state.ActivePlayer) continue;
+                foreach (var destination in Phase2MoveMap[i])
                 {
                     if (state.Board[destination] != 0) continue;
-                    var move = Tuple.Create(activeStone, destination, -1);
+                    var move = Tuple.Create(i, destination, -1);
                     if (state.CompletesMill(move))
                     {
                         foreach (var millSuccessor in state.GetRemovableEnemies(state.ActivePlayer))
                         {
-                            var millMove = Tuple.Create(activeStone, destination, millSuccessor);
+                            var millMove = Tuple.Create(i, destination, millSuccessor);
                             var successor = state.ApplyMove(millMove);
                             yield return successor;
                         }
