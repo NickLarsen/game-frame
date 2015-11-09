@@ -32,7 +32,7 @@ namespace ConsoleTester
             var rules = new NineMensMorrisGameRules();
             int millisecondsPerTurn = 10000;
             var p1 = new NegamaxPlayer<NineMensMorrisState>(rules, 1, millisecondsPerTurn, 1.5f, randomSeed: 2);
-            var p2 = new NegamaxPlayer<NineMensMorrisState>(rules, -1, millisecondsPerTurn, 1.5f, randomSeed: 3);
+            var p2 = new NegamaxPlayer<NineMensMorrisState>(rules, -1, millisecondsPerTurn, 1.5f, randomSeed: 2);
             var state = NineMensMorrisState.Empty;
             PlayGame(rules, p1, p2, state);
         }
@@ -59,9 +59,11 @@ namespace ConsoleTester
                 RepeatedState = false,
                 StatesVisited = new HashSet<long>(),
             };
-            var successors = rules.Expand(state).Where(m => m.Board[12] == 1 && m.Board[13] == 0);
-            foreach (var s in successors)
+            var successors = rules.Expand(state);//.Where(m => m.Board[12] == 1 && m.Board[13] == 0);
+            int h = 1;
+            foreach (var s in successors)//.Skip(0).Take(3))
             {
+                Console.WriteLine(h++);
                 Console.WriteLine(s.ToString());
             }
             //var result = p1.MakeMove(state);

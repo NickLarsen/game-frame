@@ -84,6 +84,84 @@ namespace GameFrame.Games
             RepeatedState = false,
         };
 
+        public NineMensMorrisState ApplyMove(Tuple<int, int, int> move)
+        {
+            var successor = new NineMensMorrisState()
+            {
+                Board = (int[])Board.Clone(),
+                ActivePlayer = -ActivePlayer,
+                LastMove = move,
+                WhiteUnplayed = WhiteUnplayed,
+                BlackUnplayed = BlackUnplayed,
+                WhiteRemaining = WhiteRemaining,
+                BlackRemaining = BlackRemaining,
+                StatesVisited = StatesVisited,
+            };
+            if (move.Item1 < 0)
+            {
+                if (ActivePlayer == 1) successor.WhiteUnplayed = WhiteUnplayed - 1;
+                else successor.BlackUnplayed = BlackUnplayed - 1;
+            }
+            else
+            {
+                successor.Board[move.Item1] = 0;
+            }
+            successor.Board[move.Item2] = ActivePlayer;
+            if (move.Item3 >= 0)
+            {
+                successor.Board[move.Item3] = 0;
+                if (ActivePlayer == 1) successor.BlackRemaining -= 1;
+                else successor.WhiteRemaining -= 1;
+            }
+            return successor;
+        }
+
+        public bool CompletesMill(Tuple<int, int, int> move)
+        {
+            var successorBoard = ApplyMove(move).Board;
+            int lastPosition = move.Item2;
+            var millChecks = Mills[lastPosition];
+            foreach (var millCheck in millChecks)
+            {
+                var completedMill = millCheck.All(m => successorBoard[m] == ActivePlayer);
+                if (completedMill) return true;
+            }
+            return false;
+        }
+
+        public IEnumerable<int> GetRemovableEnemies(int player)
+        {
+            var enemy = player * -1;
+            var enemyLocations = new HashSet<int>();
+            for (int i = 0; i < Board.Length; i++)
+            {
+                if (Board[i] == enemy)
+                {
+                    enemyLocations.Add(i);
+                }
+            }
+            var inMills = new HashSet<int>();
+            var notInMills = new HashSet<int>();
+            foreach (var location in enemyLocations)
+            {
+                if (inMills.Contains(location)) continue;
+                var isMill = false;
+                foreach (var mill in Mills[location])
+                {
+                    isMill = mill.All(enemyLocations.Contains);
+                    if (isMill)
+                    {
+                        foreach (var i in mill) inMills.Add(i);
+                        break;
+                    }
+                }
+                if (isMill) inMills.Add(location);
+                else notInMills.Add(location);
+ 
+            }
+            return notInMills.Count > 0 ? notInMills : inMills;
+        }
+
         public bool InPhase1()
         {
             return WhiteUnplayed + BlackUnplayed > 0;
@@ -129,6 +207,34 @@ namespace GameFrame.Games
             output.WriteLine("RepeatedState: " + RepeatedState);
             output.WriteLine("StatesVisited: " + string.Join(", ", StatesVisited));
         }
+
+        private static readonly int[][][] Mills = new int[][][]
+        {
+            new int[][] { new int[] { 1, 2 }, new int[] { 9, 21 } } ,
+            new int[][] { new int[] { 0, 2 }, new int[] { 4, 7 } },
+            new int[][] { new int[] { 0, 1 }, new int[] { 14, 23 } },
+            new int[][] { new int[] { 4, 5 }, new int[] { 10, 18 } },
+            new int[][] { new int[] { 3, 5 }, new int[] { 1, 7 } },
+            new int[][] { new int[] { 3, 4 }, new int[] { 13, 20 } },
+            new int[][] { new int[] { 7, 8 }, new int[] { 11, 15 } },
+            new int[][] { new int[] { 6, 8 }, new int[] { 1, 4 } },
+            new int[][] { new int[] { 6, 7 }, new int[] { 12, 17 } },
+            new int[][] { new int[] { 10, 11 }, new int[] { 0, 21 } },
+            new int[][] { new int[] { 9, 11 }, new int[] { 3, 18 } },
+            new int[][] { new int[] { 9, 10 }, new int[] { 6, 15 } },
+            new int[][] { new int[] { 13, 14 }, new int[] { 8, 17 } },
+            new int[][] { new int[] { 12, 14 }, new int[] { 5, 20 } },
+            new int[][] { new int[] { 12, 13 }, new int[] { 2, 23 } },
+            new int[][] { new int[] { 16, 17 }, new int[] { 6, 11 } },
+            new int[][] { new int[] { 15, 17 }, new int[] { 19, 22 } },
+            new int[][] { new int[] { 15, 16 }, new int[] { 8, 12 } },
+            new int[][] { new int[] { 19, 20 }, new int[] { 3, 10 } },
+            new int[][] { new int[] { 18, 20 }, new int[] { 16, 22 } },
+            new int[][] { new int[] { 18, 19 }, new int[] { 5, 13 } },
+            new int[][] { new int[] { 22, 23 }, new int[] { 0, 9 } },
+            new int[][] { new int[] { 21, 23 }, new int[] { 16, 19 } },
+            new int[][] { new int[] { 21, 22 }, new int[] { 2, 14 } },
+        };
     }
 
     public class NineMensMorrisGameRules : GameRules<NineMensMorrisState>
@@ -145,13 +251,36 @@ namespace GameFrame.Games
         {
             if (state.InPhase1())
             {
-                return ExpandPhase1(state);
+                return ExpandPhase1New(state);
             }
             if (state.ActivePlayerPhase2())
             {
                 return ExpandPhase2(state);
             }
             return ExpandPhase3(state);
+        }
+
+        private IEnumerable<NineMensMorrisState> ExpandPhase1New(NineMensMorrisState state)
+        {
+            for (int i = 0; i < state.Board.Length; i++)
+            {
+                if (state.Board[i] != 0) continue;
+                var move = Tuple.Create(-1, i, -1);
+                if (state.CompletesMill(move))
+                {
+                    foreach (var millSuccessor in state.GetRemovableEnemies(state.ActivePlayer))
+                    {
+                        var millMove = Tuple.Create(-1, i, millSuccessor);
+                        var successor = state.ApplyMove(millMove);
+                        yield return successor;
+                    }
+                }
+                else
+                {
+                    var successor = state.ApplyMove(move);
+                    yield return successor;
+                }
+            }
         }
 
         private IEnumerable<NineMensMorrisState> ExpandPhase1(NineMensMorrisState state)
@@ -344,7 +473,7 @@ namespace GameFrame.Games
             new int[] { 14, 22 },
         };
 
-        public static readonly int[][][] Mills = new int[][][]
+        private static readonly int[][][] Mills = new int[][][]
         {
             new int[][] { new int[] { 1, 2 }, new int[] { 9, 21 } } ,
             new int[][] { new int[] { 0, 2 }, new int[] { 4, 7 } },
@@ -353,22 +482,22 @@ namespace GameFrame.Games
             new int[][] { new int[] { 3, 5 }, new int[] { 1, 7 } },
             new int[][] { new int[] { 3, 4 }, new int[] { 13, 20 } },
             new int[][] { new int[] { 7, 8 }, new int[] { 11, 15 } },
-            new int[][] { new int[] { 1, 4 }, new int[] { 6, 8 } },
+            new int[][] { new int[] { 6, 8 }, new int[] { 1, 4 } },
             new int[][] { new int[] { 6, 7 }, new int[] { 12, 17 } },
-            new int[][] { new int[] { 0, 21 }, new int[] { 10, 11 } },
-            new int[][] { new int[] { 3, 18 }, new int[] { 9, 11 } },
-            new int[][] { new int[] { 6, 15 }, new int[] { 9, 10 } },
-            new int[][] { new int[] { 8, 17 }, new int[] { 13, 14 } },
-            new int[][] { new int[] { 5, 20 }, new int[] { 12, 14 } },
-            new int[][] { new int[] { 2, 23 }, new int[] { 12, 13 } },
-            new int[][] { new int[] { 6, 11 }, new int[] { 16, 17 } },
+            new int[][] { new int[] { 10, 11 }, new int[] { 0, 21 } },
+            new int[][] { new int[] { 9, 11 }, new int[] { 3, 18 } },
+            new int[][] { new int[] { 9, 10 }, new int[] { 6, 15 } },
+            new int[][] { new int[] { 13, 14 }, new int[] { 8, 17 } },
+            new int[][] { new int[] { 12, 14 }, new int[] { 5, 20 } },
+            new int[][] { new int[] { 12, 13 }, new int[] { 2, 23 } },
+            new int[][] { new int[] { 16, 17 }, new int[] { 6, 11 } },
             new int[][] { new int[] { 15, 17 }, new int[] { 19, 22 } },
             new int[][] { new int[] { 15, 16 }, new int[] { 8, 12 } },
-            new int[][] { new int[] { 3, 10 }, new int[] { 19, 20 } },
+            new int[][] { new int[] { 19, 20 }, new int[] { 3, 10 } },
             new int[][] { new int[] { 18, 20 }, new int[] { 16, 22 } },
             new int[][] { new int[] { 18, 19 }, new int[] { 5, 13 } },
-            new int[][] { new int[] { 0, 9 }, new int[] { 22, 23 } },
-            new int[][] { new int[] { 16, 19 }, new int[] { 21, 23 } },
+            new int[][] { new int[] { 22, 23 }, new int[] { 0, 9 } },
+            new int[][] { new int[] { 21, 23 }, new int[] { 16, 19 } },
             new int[][] { new int[] { 21, 22 }, new int[] { 2, 14 } },
         };
 
