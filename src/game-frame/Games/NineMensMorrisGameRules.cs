@@ -286,11 +286,6 @@ namespace GameFrame.Games
 
         public override List<NineMensMorrisState> Expand(NineMensMorrisState state)
         {
-            return ExpandInternal(state).ToList();
-        }
-
-        private IEnumerable<NineMensMorrisState> ExpandInternal(NineMensMorrisState state)
-        {
             if (state.InPhase1())
             {
                 return ExpandPhase1(state);
@@ -302,8 +297,9 @@ namespace GameFrame.Games
             return ExpandPhase3(state);
         }
 
-        private IEnumerable<NineMensMorrisState> ExpandPhase1(NineMensMorrisState state)
+        private List<NineMensMorrisState> ExpandPhase1(NineMensMorrisState state)
         {
+            var successors = new List<NineMensMorrisState>(24);
             for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
             {
                 if (state.GetCellPlayer(i) != 0) continue;
@@ -314,25 +310,27 @@ namespace GameFrame.Games
                     {
                         var millMove = Tuple.Create(-1, i, millSuccessor);
                         var successor = state.ApplyMove(millMove);
-                        yield return successor;
+                        successors.Add(successor);
                     }
                 }
                 else
                 {
                     var successor = state.ApplyMove(move);
-                    yield return successor;
+                    successors.Add(successor);
                 }
             }
+            return successors;
         }
 
-        private IEnumerable<NineMensMorrisState> ExpandPhase2(NineMensMorrisState state)
+        private List<NineMensMorrisState> ExpandPhase2(NineMensMorrisState state)
         {
+            var successors = new List<NineMensMorrisState>(16);
             for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
             {
                 if (state.GetCellPlayer(i) != state.ActivePlayer) continue;
                 foreach (var destination in Phase2MoveMap[i])
                 {
-                    if (state.Board[destination] != 0) continue;
+                    if (state.GetCellPlayer(destination) != 0) continue;
                     var move = Tuple.Create(i, destination, -1);
                     if (state.CompletesMill(move))
                     {
@@ -340,16 +338,17 @@ namespace GameFrame.Games
                         {
                             var millMove = Tuple.Create(i, destination, millSuccessor);
                             var successor = state.ApplyMove(millMove);
-                            yield return successor;
+                            successors.Add(successor);
                         }
                     }
                     else
                     {
                         var successor = state.ApplyMove(move);
-                        yield return successor;
+                        successors.Add(successor);
                     }
                 }
             }
+            return successors;
         }
 
         public static readonly int[][] Phase2MoveMap = new int[][]
@@ -380,12 +379,12 @@ namespace GameFrame.Games
             new int[] { 14, 22 },
         };
 
-        private IEnumerable<NineMensMorrisState> ExpandPhase3(NineMensMorrisState state)
+        private List<NineMensMorrisState> ExpandPhase3(NineMensMorrisState state)
         {
-            var holes = state.Board.Length;
-            var empties = new List<int>(holes);
-            var activeStones = new List<int>(holes);
-            for (int i = 0; i < holes; i++)
+            var successors = new List<NineMensMorrisState>(16);
+            var empties = new List<int>(NineMensMorrisState.BoardLength);
+            var activeStones = new List<int>(NineMensMorrisState.BoardLength);
+            for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
             {
                 int v = state.GetCellPlayer(i);
                 if (v == 0)
@@ -408,16 +407,17 @@ namespace GameFrame.Games
                         {
                             var millMove = Tuple.Create(activeStone, destination, millSuccessor);
                             var successor = state.ApplyMove(millMove);
-                            yield return successor;
+                            successors.Add(successor);
                         }
                     }
                     else
                     {
                         var successor = state.ApplyMove(move);
-                        yield return successor;
+                        successors.Add(successor);
                     }
                 }
             }
+            return successors;
         }
 
         public override float? DetermineWinner(NineMensMorrisState state)
