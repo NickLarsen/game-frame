@@ -11,7 +11,7 @@ namespace GameFrame
         public float HistoryPowerBase { get; }
 
         private Dictionary<ulong, TranspositionTableEntry> transpositionTable;
-        private Dictionary<int, long> historyScores;
+        private Dictionary<int, ulong> historyScores;
         private long evals;
         private int maxDepth;
         private DateTime start;
@@ -35,7 +35,7 @@ namespace GameFrame
             start = DateTime.UtcNow;
             evals = 0;
             transpositionTable = new Dictionary<ulong, TranspositionTableEntry>();
-            historyScores = new Dictionary<int, long>();
+            historyScores = new Dictionary<int, ulong>();
             List<TState> bestOverall = null;
             var possibleMoves = GameRules.Expand(state);
             int depth = 2;
@@ -125,7 +125,7 @@ namespace GameFrame
                 return state.GetHeuristicValue();
             }
             float best = float.MinValue;
-            var successors = GameRules.Expand(state).OrderByDescending(GetHistoryScore);
+            var successors = OrderSuccessors(GameRules.Expand(state));
             foreach (var successor in successors)
             {
                 var timeRunning = DateTime.UtcNow - start;
@@ -137,7 +137,7 @@ namespace GameFrame
                 alpha = Math.Max(alpha, value);
                 if (alpha >= beta)
                 {
-                    AddHistoryScore(successor, (long)Math.Ceiling(Math.Pow(HistoryPowerBase, depth)));
+                    AddHistoryScore(successor, (ulong)Math.Ceiling(Math.Pow(HistoryPowerBase, depth)));
                     break;
                 };
             }
@@ -159,22 +159,68 @@ namespace GameFrame
             return best;
         }
 
-        private long GetHistoryScore(TState state)
+        private TState[] OrderSuccessors(List<TState> successors)
+        {
+            const int maxSuccessorsBits = 8; // hack for sorting history score as a single number
+            const ulong maxSuccessorsBitsMask = 0xffUL; // hack for sorting history score as a single number
+
+            var scores = new ulong[successors.Count];
+            ulong j = 0;
+            for (int i = 0; i < successors.Count; i++)
+            {
+                ulong historyScore = GetHistoryScore(successors[i]);
+                scores[i] = historyScore << maxSuccessorsBits | j;
+                j++;
+            }
+            BubbleSortDesc(scores);
+            var ordered = new TState[scores.Length];
+            for (int i = 0; i < scores.Length; i++)
+            {
+                int succesorIndex = (int)(scores[i] & maxSuccessorsBitsMask);
+                ordered[i] = successors[succesorIndex];
+            }
+            return ordered;
+        }
+
+        // why? it's really fast for small input sizes and requires no allocations
+        private void BubbleSortDesc(ulong[] scores)
+        {
+            bool ordered = false;
+            while (!ordered)
+            {
+                ordered = true;
+                for (int i = 1; i < scores.Length; i++)
+                {
+                    if (scores[i] > scores[i - 1])
+                    {
+                        var t = scores[i];
+                        scores[i] = scores[i - 1];
+                        scores[i - 1] = t;
+                        ordered = false;
+                    }
+                }
+            }
+        }
+
+        private ulong GetHistoryScore(TState state)
         {
             var stateHash = state.GetHistoryHash();
             if (historyScores.ContainsKey(stateHash))
             {
                 return historyScores[stateHash];
             }
-            return int.MinValue;
+            return ulong.MinValue;
         }
 
-        private void AddHistoryScore(TState state, long value)
+        private void AddHistoryScore(TState state, ulong value)
         {
             var stateHash = state.GetHistoryHash();
             if (historyScores.ContainsKey(stateHash))
             {
-                historyScores[stateHash] += value;
+                checked
+                {
+                    historyScores[stateHash] += value;
+                }
             }
             else
             {
