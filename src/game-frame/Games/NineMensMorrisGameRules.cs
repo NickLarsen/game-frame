@@ -19,16 +19,11 @@ namespace GameFrame.Games
         public HashSet<ulong> StatesVisited { get; set; } 
         public bool RepeatedState { get; set; }
 
+        private ulong boardHash { get; set; }
+
         public ulong GetStateHash()
         {
-            long hash = 0;
-            for (int i = 0; i < Board.Length; i++)
-            {
-                hash <<= 2;
-                hash |= Board[i] & 3;
-            }
-            hash *= ActivePlayer;
-            return hash;
+            return boardHash;
         }
 
         public int GetHistoryHash()
@@ -75,6 +70,7 @@ namespace GameFrame.Games
 
         public static NineMensMorrisState Empty => new NineMensMorrisState()
         {
+            boardHash = 0ul,
             Board = new int[BoardLength],
             ActivePlayer = 1,
             LastMove = Tuple.Create(-1, -1, -1),
@@ -90,6 +86,7 @@ namespace GameFrame.Games
         {
             var successor = new NineMensMorrisState()
             {
+                boardHash = boardHash ^ (1UL << (25 * 2)), //indicate who's turn it is outside of the board range
                 Board = (int[])Board.Clone(),
                 ActivePlayer = -ActivePlayer,
                 LastMove = move,
@@ -107,11 +104,14 @@ namespace GameFrame.Games
             else
             {
                 successor.Board[move.Item1] = 0;
+                successor.boardHash &= ~(3ul << (move.Item1 * 2));
             }
             successor.Board[move.Item2] = ActivePlayer;
+            successor.boardHash |= (ActivePlayer == 1 ? 1ul : 2ul) << (move.Item2 * 2);
             if (move.Item3 >= 0)
             {
                 successor.Board[move.Item3] = 0;
+                successor.boardHash &= ~(3ul << (move.Item3 * 2));
                 if (ActivePlayer == 1) successor.BlackRemaining -= 1;
                 else successor.WhiteRemaining -= 1;
             }
