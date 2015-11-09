@@ -14,8 +14,8 @@ namespace ConsoleTester
         {
             debug = args.Any(m => m == "-debug");
             //PlayTicTacToe();
-            PlayNineMensMorris();
-            //TestNineMensMorris();
+            //PlayNineMensMorris();
+            TestNineMensMorris();
         }
 
         static void PlayTicTacToe()
@@ -45,28 +45,28 @@ namespace ConsoleTester
             {
                 ActivePlayer = 1,
                 BlackUnplayed = 0,
-                BlackRemaining = 6,
+                BlackRemaining = 3,
                 WhiteUnplayed = 0,
                 WhiteRemaining = 7,
-                Board = new int[] { 0, 0, 0,
-                                   -1, 1, 0,
-                                    0, 0, 1,
-                             0, -1, 1,    0, 1, 1,
-                                   -1, -1, 1,
-                                    -1, 1, 1,
-                                    -1, 0, 0 },
-                LastMove = Tuple.Create(9, 21, -1),
+                Board = new int[] { 0, -1,  0,
+                                    1, -1,  0,
+                                    1,  0,  0,
+                            0,  1,  0,      0,  1,  0,
+                                    1,  1,  0,
+                                    0,  1, -1,
+                                    0,  0,  0 },
+                LastMove = Tuple.Create(18, 20, -1),
                 RepeatedState = false,
                 StatesVisited = new HashSet<long>(),
             };
-            var successors = rules.Expand(state);//.Where(m => m.Board[12] == 1 && m.Board[13] == 0);
-            int h = 1;
-            foreach (var s in successors)//.Skip(0).Take(3))
-            {
-                Console.WriteLine(h++);
-                Console.WriteLine(s.ToString());
-            }
-            //var result = p1.MakeMove(state);
+            //var successors = rules.Expand(state);//.Where(m => m.Board[12] == 1 && m.Board[13] == 0);
+            //int h = 1;
+            //foreach (var s in successors)//.Skip(0).Take(3))
+            //{
+            //    Console.WriteLine(h++);
+            //    Console.WriteLine(s.ToString());
+            //}
+            var result = p1.MakeMove(state);
             int i = 0;
         }
 

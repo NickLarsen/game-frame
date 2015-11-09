@@ -550,7 +550,7 @@ namespace GameFrame.Games
         {
             if (state.RepeatedState) return 0f;
             var movementPenalty = state.GetTotalMoves() / 10000000f;
-            var importantPieces = state.ActivePlayer == 1 ? state.BlackRemaining : state.WhiteRemaining;
+            var importantPieces = state.ActivePlayer == 1 ? state.WhiteRemaining : state.BlackRemaining;
             if (importantPieces < 3) return -1f + movementPenalty;
             if (state.ActivePlayerPhase2() && !ExpandInternal(state).Any()) // can only lose if active player cannot move
             {
