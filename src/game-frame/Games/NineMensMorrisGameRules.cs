@@ -173,8 +173,8 @@ namespace GameFrame.Games
 
         public bool ActivePlayerPhase2()
         {
-            if (ActivePlayer == 1) return WhiteRemaining > 3;
-            return BlackRemaining > 3;
+            if (ActivePlayer == 1) return WhiteUnplayed == 0 && WhiteRemaining > 3;
+            return BlackUnplayed == 0 && BlackRemaining > 3;
         }
 
         private const string displayFormatSmall = "{0}--{1}--{2}\n|{3}-{4}-{5}|\n||{6}{7}{8}||\n{9}{10}{11} {12}{13}{14}\n||{15}{16}{17}||\n|{18}-{19}-{20}|\n{21}--{22}--{23}";
