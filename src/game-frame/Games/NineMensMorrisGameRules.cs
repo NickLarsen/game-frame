@@ -134,36 +134,22 @@ namespace GameFrame.Games
 
         public IEnumerable<int> GetRemovableEnemies(int player)
         {
-            var enemy = player * -1;
-            var enemyLocations = new HashSet<int>();
+            //          this handles the magic |*******************| of selecting the enemies
+            ulong playerStones = (boardHash >> (player == 1 ? 1 : 0)) & 0x555555555555UL;
+            ulong millStones = 0UL;
+            for (int i = 0; i < AllMills.Length; i++)
+            {
+                var mill = AllMills[i];
+                if ((playerStones & mill) == mill) millStones |= mill;
+            }
+            ulong notMillStones = playerStones & ~millStones;
+            ulong removable = notMillStones > 0 ? notMillStones : millStones;
+            var removableEnemies = new List<int>(9);
             for (int i = 0; i < BoardLength; i++)
             {
-                int cellPlayer = GetCellPlayer(i);
-                if (cellPlayer == enemy)
-                {
-                    enemyLocations.Add(i);
-                }
+                if ((removable & (1UL << (i*2))) > 0) removableEnemies.Add(i);
             }
-            var inMills = new HashSet<int>();
-            var notInMills = new HashSet<int>();
-            foreach (var location in enemyLocations)
-            {
-                if (inMills.Contains(location)) continue;
-                var isMill = false;
-                foreach (var mill in Mills[location])
-                {
-                    isMill = mill.All(enemyLocations.Contains);
-                    if (isMill)
-                    {
-                        foreach (var i in mill) inMills.Add(i);
-                        break;
-                    }
-                }
-                if (isMill) inMills.Add(location);
-                else notInMills.Add(location);
- 
-            }
-            return notInMills.Count > 0 ? notInMills : inMills;
+            return removableEnemies;
         }
 
         public bool InPhase1()
@@ -276,6 +262,26 @@ namespace GameFrame.Games
             1UL << 44 | 1UL << 46, 1UL <<  0 | 1UL << 18,// { new int[] { 22, 23 }, new int[] { 0, 9 } },
             1UL << 42 | 1UL << 46, 1UL << 32 | 1UL << 38,// { new int[] { 21, 23 }, new int[] { 16, 19 } },
             1UL << 42 | 1UL << 44, 1UL <<  4 | 1UL << 28,// { new int[] { 21, 22 }, new int[] { 2, 14 } },
+        };
+
+        private static readonly ulong[] AllMills = new ulong[]
+        {
+            1UL <<  0 | 1UL <<  2 | 1UL <<  4, // 0, 1, 2
+            1UL <<  6 | 1UL <<  8 | 1UL << 10, // 3, 4, 5
+            1UL << 12 | 1UL << 14 | 1UL << 16, // 6, 7, 8
+            1UL << 18 | 1UL << 20 | 1UL << 22, // 9, 10, 11
+            1UL << 24 | 1UL << 26 | 1UL << 28, // 12, 13, 14
+            1UL << 30 | 1UL << 32 | 1UL << 34, // 15, 16, 17
+            1UL << 36 | 1UL << 38 | 1UL << 40, // 18, 19, 20
+            1UL << 42 | 1UL << 44 | 1UL << 46, // 21, 22, 23
+            1UL <<  0 | 1UL << 18 | 1UL << 42, // 0, 9, 21
+            1UL <<  6 | 1UL << 20 | 1UL << 36, // 3, 10, 18
+            1UL << 12 | 1UL << 22 | 1UL << 30, // 6, 11, 15
+            1UL <<  2 | 1UL <<  8 | 1UL << 14, // 1, 4, 7
+            1UL << 32 | 1UL << 38 | 1UL << 44, // 16, 19, 22
+            1UL << 16 | 1UL << 24 | 1UL << 34, // 8, 12, 17
+            1UL << 10 | 1UL << 26 | 1UL << 40, // 5, 13, 20
+            1UL <<  4 | 1UL << 28 | 1UL << 46, // 2, 14, 23
         };
     }
 
