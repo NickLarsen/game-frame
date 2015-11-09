@@ -14,8 +14,8 @@ namespace ConsoleTester
         {
             debug = args.Any(m => m == "-debug");
             //PlayTicTacToe();
-            //PlayNineMensMorris();
-            TestNineMensMorris();
+            PlayNineMensMorris();
+            //TestNineMensMorris();
         }
 
         static void PlayTicTacToe()
