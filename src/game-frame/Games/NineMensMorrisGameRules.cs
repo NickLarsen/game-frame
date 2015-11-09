@@ -8,8 +8,7 @@ namespace GameFrame.Games
     public class NineMensMorrisState : IState
     {
         public const int BoardLength = 24;
-
-        public int[] Board { get; set; }
+        
         public int ActivePlayer { get; set; }
         public Tuple<int, int, int> LastMove { get; set; }
         public int WhiteUnplayed { get; set; }
@@ -37,13 +36,21 @@ namespace GameFrame.Games
             int adjacentCount = 0;
             for (int i = 0; i < BoardLength; i++)
             {
-                if (Board[i] == ActivePlayer)
+                int cellPlayer = GetCellPlayer(i);
+                if (cellPlayer == ActivePlayer)
                 {
                     adjacentCount += NineMensMorrisGameRules.Phase2MoveMap[i].Length;
                 }
             }
             var movability = adjacentCount / 10000f;
             return pieceAdvantage + movability;
+        }
+
+        public int GetCellPlayer(int cell)
+        {
+            var cellValue = (boardHash >> (cell * 2)) & 3UL;
+            int cellPlayer = cellValue == 2UL ? -1 : (int)cellValue;
+            return cellPlayer;
         }
 
         public int GetTotalMoves()
@@ -71,7 +78,6 @@ namespace GameFrame.Games
         public static NineMensMorrisState Empty => new NineMensMorrisState()
         {
             boardHash = 0ul,
-            Board = new int[BoardLength],
             ActivePlayer = 1,
             LastMove = Tuple.Create(-1, -1, -1),
             WhiteUnplayed = 9,
@@ -87,7 +93,6 @@ namespace GameFrame.Games
             var successor = new NineMensMorrisState()
             {
                 boardHash = boardHash ^ (1UL << (25 * 2)), //indicate who's turn it is outside of the board range, has to be > 24 because we're going to shift later
-                Board = (int[])Board.Clone(),
                 ActivePlayer = -ActivePlayer,
                 LastMove = move,
                 WhiteUnplayed = WhiteUnplayed,
@@ -103,14 +108,11 @@ namespace GameFrame.Games
             }
             else
             {
-                successor.Board[move.Item1] = 0;
                 successor.boardHash &= ~(3ul << (move.Item1 * 2));
             }
-            successor.Board[move.Item2] = ActivePlayer;
             successor.boardHash |= (ActivePlayer == 1 ? 1ul : 2ul) << (move.Item2 * 2);
             if (move.Item3 >= 0)
             {
-                successor.Board[move.Item3] = 0;
                 successor.boardHash &= ~(3ul << (move.Item3 * 2));
                 if (ActivePlayer == 1) successor.BlackRemaining -= 1;
                 else successor.WhiteRemaining -= 1;
@@ -136,7 +138,8 @@ namespace GameFrame.Games
             var enemyLocations = new HashSet<int>();
             for (int i = 0; i < BoardLength; i++)
             {
-                if (Board[i] == enemy)
+                int cellPlayer = GetCellPlayer(i);
+                if (cellPlayer == enemy)
                 {
                     enemyLocations.Add(i);
                 }
@@ -189,8 +192,18 @@ namespace GameFrame.Games
 {21}----{22}----{23}";
         public override string ToString()
         {
-            var args = Board.Select(m => m == 0 ? " " : (m == 1 ? "W" : "B")).ToArray();
+            var args = GetBoardFormatArgs().Select(m => m == 0 ? " " : (m == 1 ? "W" : "B")).ToArray();
             return string.Format(displayFormatLarge, args);
+        }
+
+        private int[] GetBoardFormatArgs()
+        {
+            var board = new int[BoardLength];
+            for (int i = 0; i < BoardLength; i++)
+            {
+                board[i] = GetCellPlayer(i);
+            }
+            return board;
         }
 
         public string LastMoveDescription()
@@ -200,7 +213,7 @@ namespace GameFrame.Games
 
         public void WriteDebugInfo(TextWriter output)
         {
-            output.WriteLine("Board: " + string.Join(", ", Board));
+            output.WriteLine("Board: " + string.Join(", ", GetBoardFormatArgs()));
             output.WriteLine("WhiteUnplayed: " + WhiteUnplayed);
             output.WriteLine("BlackUnplayed: " + BlackUnplayed);
             output.WriteLine("ActivePlayer: " + ActivePlayer);
@@ -293,7 +306,7 @@ namespace GameFrame.Games
         {
             for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
             {
-                if (state.Board[i] != 0) continue;
+                if (state.GetCellPlayer(i) != 0) continue;
                 var move = Tuple.Create(-1, i, -1);
                 if (state.CompletesMill(move))
                 {
@@ -316,7 +329,7 @@ namespace GameFrame.Games
         {
             for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
             {
-                if (state.Board[i] != state.ActivePlayer) continue;
+                if (state.GetCellPlayer(i) != state.ActivePlayer) continue;
                 foreach (var destination in Phase2MoveMap[i])
                 {
                     if (state.Board[destination] != 0) continue;
@@ -374,17 +387,14 @@ namespace GameFrame.Games
             var activeStones = new List<int>(holes);
             for (int i = 0; i < holes; i++)
             {
-                int v = state.Board[i];
-                if (v != 0)
-                {
-                    if (v == state.ActivePlayer)
-                    {
-                        activeStones.Add(i);
-                    }
-                }
-                else
+                int v = state.GetCellPlayer(i);
+                if (v == 0)
                 {
                     empties.Add(i);
+                }
+                else if (v == state.ActivePlayer)
+                {
+                    activeStones.Add(i);
                 }
             }
             foreach (var activeStone in activeStones)
