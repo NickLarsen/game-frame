@@ -424,6 +424,7 @@ namespace GameFrame.Games
         {
             // TODO: if you're going to win, you want to win in shortest but if you are going to lose you want to lose in longest
             if (state.RepeatedState) return 0f;
+            if (state.InPhase1()) return null;
             var movementPenalty = state.GetTotalMoves() / 10000000f;
             var importantPieces = state.ActivePlayer == 1 ? state.WhiteRemaining : state.BlackRemaining;
             if (importantPieces < 3) return -1f + movementPenalty;
