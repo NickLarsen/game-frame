@@ -17,8 +17,9 @@ namespace GameFrame
         private DateTime start;
         private readonly Random random;
         private bool ignoringTimer = false;
+        private int maxSearchDepth;
 
-        public NegamaxPlayer(GameRules<TState> gameRules, int playerNumber, int millisecondsPerMove, float historyPowerBase, int? randomSeed = null)
+        public NegamaxPlayer(GameRules<TState> gameRules, int playerNumber, int millisecondsPerMove, float historyPowerBase, int? randomSeed = null, int maxSearchDepth = int.MaxValue)
             : base(gameRules)
         {
             PlayerNumber = playerNumber;
@@ -26,6 +27,7 @@ namespace GameFrame
             MillisecondsPerMove = millisecondsPerMove;
             HistoryPowerBase = historyPowerBase;
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
+            this.maxSearchDepth = maxSearchDepth;
         }
 
         public override TState MakeMove(TState state)
@@ -82,6 +84,7 @@ namespace GameFrame
                     break;
                 }
                 depth += 2;
+                if (depth > maxSearchDepth) break;
             }
             Console.WriteLine(evals);
             var selection = bestOverall[random.Next(bestOverall.Count)];
