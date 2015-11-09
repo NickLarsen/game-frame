@@ -40,24 +40,24 @@ namespace ConsoleTester
         static void TestNineMensMorris()
         {
             var rules = new NineMensMorrisGameRules();
-            var p1 = new NegamaxPlayer<NineMensMorrisState>(rules, 1, 9950, 1.5f, randomSeed: 1);
+            var p1 = new NegamaxPlayer<NineMensMorrisState>(rules, 1, 9950, 1.5f, randomSeed: 2);
             var state = new NineMensMorrisState()
             {
                 ActivePlayer = 1,
-                BlackUnplayed = 0,
-                BlackRemaining = 3,
-                WhiteUnplayed = 0,
-                WhiteRemaining = 7,
-                Board = new int[] { 0, -1,  0,
-                                    1, -1,  0,
-                                    1,  0,  0,
-                            0,  1,  0,      0,  1,  0,
-                                    1,  1,  0,
-                                    0,  1, -1,
+                BlackUnplayed = 9,
+                BlackRemaining = 9,
+                WhiteUnplayed = 9,
+                WhiteRemaining = 9,
+                Board = new int[] { 0,  0,  0,
+                                    0,  0,  0,
+                                    0,  0,  0,
+                            0,  0,  0,      0,  0,  0,
+                                    0,  0,  0,
+                                    0,  0,  0,
                                     0,  0,  0 },
-                LastMove = Tuple.Create(18, 20, -1),
+                LastMove = Tuple.Create(-1, -1, -1),
                 RepeatedState = false,
-                StatesVisited = new HashSet<long>(),
+                StatesVisited = new HashSet<ulong>(),
             };
             //var successors = rules.Expand(state);//.Where(m => m.Board[12] == 1 && m.Board[13] == 0);
             //int h = 1;
