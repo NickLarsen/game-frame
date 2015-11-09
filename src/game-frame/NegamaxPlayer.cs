@@ -17,7 +17,7 @@ namespace GameFrame
         private DateTime start;
         private readonly Random random;
         private bool ignoringTimer = false;
-        private int maxSearchDepth;
+        private readonly int maxSearchDepth;
 
         public NegamaxPlayer(GameRules<TState> gameRules, int playerNumber, int millisecondsPerMove, float historyPowerBase, int? randomSeed = null, int maxSearchDepth = int.MaxValue)
             : base(gameRules)
