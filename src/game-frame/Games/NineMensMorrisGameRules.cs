@@ -427,11 +427,24 @@ namespace GameFrame.Games
             var movementPenalty = state.GetTotalMoves() / 10000000f;
             var importantPieces = state.ActivePlayer == 1 ? state.WhiteRemaining : state.BlackRemaining;
             if (importantPieces < 3) return -1f + movementPenalty;
-            if (state.ActivePlayerPhase2() && !ExpandInternal(state).Any()) // can only lose if active player cannot move
+            if (state.ActivePlayerPhase2() && !AnyPhase2Moves(state)) // can only lose if active player cannot move
             {
                 return -1f + movementPenalty;
             }
             return null;
+        }
+
+        private bool AnyPhase2Moves(NineMensMorrisState state)
+        {
+            for (int i = 0; i < NineMensMorrisState.BoardLength; i++)
+            {
+                if (state.GetCellPlayer(i) != state.ActivePlayer) continue;
+                foreach (var destination in Phase2MoveMap[i])
+                {
+                    if (state.GetCellPlayer(destination) == 0) return true;
+                }
+            }
+            return false;
         }
 
         public override int? GetWinningPlayerNumber(NineMensMorrisState state)
