@@ -49,11 +49,12 @@ namespace GameFrame
                 TState bestMove = default(TState);
                 var alpha = float.MinValue;
                 foreach (var successor in possibleMoves)
+                var beta = float.MaxValue;
                 {
                     var timeRunning = DateTime.UtcNow - start;
                     if (!ignoringTimer && timeRunning.TotalMilliseconds > MillisecondsPerMove) break;
                     successor.PreRun();
-                    var value = -Negamax(successor, depth-1, float.MinValue, -alpha);
+                    var value = -Negamax(successor, depth-1, -beta, -alpha);
                     successor.PostRun();
                     Console.WriteLine(successor.LastMoveDescription() + ": " + value);
                     if (value > best)
