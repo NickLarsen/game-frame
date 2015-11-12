@@ -48,8 +48,8 @@ namespace GameFrame
                 float best = float.MinValue;
                 TState bestMove = default(TState);
                 var alpha = float.MinValue;
-                foreach (var successor in possibleMoves)
                 var beta = float.MaxValue;
+                foreach (var successor in possibleMoves)
                 {
                     long lastEvals = evals;
                     var timeRunning = DateTime.UtcNow - start;
