@@ -13,7 +13,6 @@ namespace GameFrame
         private Dictionary<ulong, TranspositionTableEntry> transpositionTable;
         private Dictionary<int, ulong> historyScores;
         private long evals;
-        private int maxDepth;
         private DateTime start;
         private readonly Random random;
         private bool ignoringTimer = false;
@@ -42,7 +41,6 @@ namespace GameFrame
             while (true)
             {
                 Console.WriteLine("search depth: " + depth);
-                maxDepth = depth - 1;
                 float best = float.MinValue;
                 List<TState> bestMoves = new List<TState>();
                 var alpha = float.MinValue;
@@ -94,7 +92,6 @@ namespace GameFrame
 
         private float Negamax(TState state, int depth, float alpha, float beta)
         {
-            maxDepth = Math.Min(maxDepth, depth);
             evals++;
             float alphaOriginal = alpha;
             var stateHash = state.GetStateHash();
