@@ -14,7 +14,9 @@ namespace ConsoleTester
         {
             debug = args.Any(m => m == "-debug");
             //PlayTicTacToe();
-            PlayNineMensMorris();
+            PlayConnectFour();
+            //TestConnectFour();
+            //PlayNineMensMorris();
             //TestNineMensMorris();
         }
 
@@ -25,6 +27,46 @@ namespace ConsoleTester
             var p2 = new NegamaxPlayer<TicTacToeState>(rules, -1, 950, 2f, randomSeed: null);
             var state = TicTacToeState.Empty;
             PlayGame(rules, p1, p2, state);
+        }
+
+        static void PlayConnectFour()
+        {
+            var rules = new ConnectFourGameRules();
+            var p1 = new NegamaxPlayer<ConnectFourState>(rules, 1, 10000, 2f, randomSeed: 1);
+            var p2 = new NegamaxPlayer<ConnectFourState>(rules, -1, 10000, 2f, randomSeed: 1);
+            var state = ConnectFourState.Empty;
+            PlayGame(rules, p1, p2, state);
+        }
+
+        static void TestConnectFour()
+        {
+            var rules = new ConnectFourGameRules();
+            var p1 = new NegamaxPlayer<ConnectFourState>(rules, -1, 10000, 2f, randomSeed: 1);
+            var stateString = "6;7;0;1;18";
+            var state = BuildConnectFourState(stateString);
+            var successors = rules.Expand(state);//.Where(m => m.Board[12] == 1 && m.Board[13] == 0);
+            int h = 1;
+            foreach (var s in successors)//.Skip(0).Take(3))
+            {
+                Console.WriteLine(h++);
+                Console.WriteLine(s.ToString());
+            }
+            var result = p1.MakeMove(state);
+            int i = 0;
+        }
+
+        private static ConnectFourState BuildConnectFourState(string serverState)
+        {
+            var moves = serverState.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                .Select(m => int.Parse(m))
+                .ToArray();
+            var state = ConnectFourState.Empty;
+            foreach (var move in moves)
+            {
+                state = state.ApplyMove(move);
+                state.PreRun(); // updates visited states for draw tracking
+            }
+            return state;
         }
 
         static void PlayNineMensMorris()
@@ -63,7 +105,7 @@ namespace ConsoleTester
             var state = NineMensMorrisState.Empty;
             foreach (var move in moves)
             {
-                state.ApplyMove(move);
+                state = state.ApplyMove(move);
                 state.PreRun(); // updates visited states for draw tracking
             }
             return state;
