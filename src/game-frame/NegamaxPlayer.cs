@@ -11,7 +11,7 @@ namespace GameFrame
         public float HistoryPowerBase { get; }
 
         private Dictionary<ulong, TranspositionTableEntry> transpositionTable;
-        private Dictionary<int, ulong> historyScores;
+        private ulong[] historyScores;
         private long evals;
         private DateTime start;
         private readonly Random random;
@@ -34,8 +34,8 @@ namespace GameFrame
             start = DateTime.UtcNow;
             evals = 0;
             transpositionTable = new Dictionary<ulong, TranspositionTableEntry>();
-            historyScores = new Dictionary<int, ulong>();
             List<TState> bestOverall = null;
+            historyScores = new ulong[ushort.MaxValue];
             var possibleMoves = GameRules.Expand(state);
             int depth = 2;
             while (true)
@@ -134,7 +134,9 @@ namespace GameFrame
                 alpha = Math.Max(alpha, value);
                 if (alpha >= beta)
                 {
-                    AddHistoryScore(successor, (ulong)Math.Ceiling(Math.Pow(HistoryPowerBase, depth)));
+                    var successorHash = successor.GetHistoryHash();
+                    var stateHistoryValue = (ulong)Math.Ceiling(Math.Pow(HistoryPowerBase, depth));
+                    checked { historyScores[successorHash] += stateHistoryValue; }
                     break;
                 };
             }
@@ -165,7 +167,7 @@ namespace GameFrame
             ulong j = 0;
             for (int i = 0; i < successors.Count; i++)
             {
-                ulong historyScore = GetHistoryScore(successors[i]);
+                ulong historyScore = historyScores[successors[i].GetHistoryHash() & 0xffffU];
                 scores[i] = historyScore << maxSuccessorsBits | j;
                 j++;
             }
@@ -196,32 +198,6 @@ namespace GameFrame
                         ordered = false;
                     }
                 }
-            }
-        }
-
-        private ulong GetHistoryScore(TState state)
-        {
-            var stateHash = state.GetHistoryHash();
-            if (historyScores.ContainsKey(stateHash))
-            {
-                return historyScores[stateHash];
-            }
-            return ulong.MinValue;
-        }
-
-        private void AddHistoryScore(TState state, ulong value)
-        {
-            var stateHash = state.GetHistoryHash();
-            if (historyScores.ContainsKey(stateHash))
-            {
-                checked
-                {
-                    historyScores[stateHash] += value;
-                }
-            }
-            else
-            {
-                historyScores[stateHash] = value;
             }
         }
 

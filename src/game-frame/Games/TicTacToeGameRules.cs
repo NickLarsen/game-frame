@@ -23,9 +23,9 @@ namespace GameFrame.Games
             return hash;
         }
 
-        public int GetHistoryHash()
+        public uint GetHistoryHash()
         {
-            return LastMove;
+            return (uint)LastMove;
         }
 
         public float GetHeuristicValue()

@@ -6,7 +6,7 @@ namespace GameFrame
     {
         int ActivePlayer { get; set; }
         ulong GetStateHash();
-        int GetHistoryHash();
+        uint GetHistoryHash(); // This will only use the lower 16 bytes for indexing, so basically keep it to a ushort.
         float GetHeuristicValue(); // this function should never return 0f else finding certain ties gets much harder
         string LastMoveDescription();
         void WriteDebugInfo(TextWriter output);

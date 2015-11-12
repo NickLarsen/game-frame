@@ -25,9 +25,9 @@ namespace GameFrame.Games
             return boardHash;
         }
 
-        public int GetHistoryHash()
+        public uint GetHistoryHash()
         {
-            return LastMove.Item1 << 5 | LastMove.Item2;
+            return (uint)(LastMove.Item1 + 1) << 8 | (uint)LastMove.Item2;
         }
 
         public float GetHeuristicValue()
