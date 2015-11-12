@@ -40,7 +40,7 @@ namespace GameFrame
             transpositionTable = new Dictionary<ulong, TranspositionTableEntry>();
             historyScores = new ulong[ushort.MaxValue];
             TState bestOverall = default(TState);
-            var possibleMoves = GameRules.Expand(state);
+            var possibleMoves = OrderRandom(GameRules.Expand(state));
             int depth = 2;
             while (true)
             {
@@ -169,6 +169,29 @@ namespace GameFrame
             {
                 ulong historyScore = historyScores[successors[i].GetHistoryHash() & 0xffffU];
                 scores[i] = historyScore << maxSuccessorsBits | j;
+                j++;
+            }
+            BubbleSortDesc(scores);
+            var ordered = new TState[scores.Length];
+            for (int i = 0; i < scores.Length; i++)
+            {
+                int succesorIndex = (int)(scores[i] & maxSuccessorsBitsMask);
+                ordered[i] = successors[succesorIndex];
+            }
+            return ordered;
+        }
+
+        private TState[] OrderRandom(List<TState> successors)
+        {
+            const int maxSuccessorsBits = 8; // hack for sorting history score as a single number
+            const ulong maxSuccessorsBitsMask = 0xffUL; // hack for sorting history score as a single number
+
+            var scores = new ulong[successors.Count];
+            ulong j = 0;
+            for (int i = 0; i < successors.Count; i++)
+            {
+                ulong score = (ulong)random.Next() & 0xffffUL;
+                scores[i] = score << maxSuccessorsBits | j;
                 j++;
             }
             BubbleSortDesc(scores);
