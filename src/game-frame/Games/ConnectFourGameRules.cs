@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using GameFrame.Helpers;
 
 namespace GameFrame.Games
 {
@@ -28,7 +26,7 @@ namespace GameFrame.Games
         public float GetHeuristicValue()
         {
             // TODO: need something here
-            return -0.01f;
+            return 0.01f;
         }
 
         public void PreRun() { }
