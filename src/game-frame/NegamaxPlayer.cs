@@ -51,20 +51,21 @@ namespace GameFrame
                 foreach (var successor in possibleMoves)
                 var beta = float.MaxValue;
                 {
+                    long lastEvals = evals;
                     var timeRunning = DateTime.UtcNow - start;
                     if (!ignoringTimer && timeRunning.TotalMilliseconds > MillisecondsPerMove) break;
                     successor.PreRun();
                     var value = -Negamax(successor, depth-1, -beta, -alpha);
                     successor.PostRun();
-                    Console.WriteLine(successor.LastMoveDescription() + ": " + value);
+                    Console.WriteLine(successor.LastMoveDescription() + ": " + value + "     negamax calls: " + (evals -  lastEvals));
                     if (value > best)
                     {
                         best = value;
                         bestMove = successor;
                     }
-                    // cannot keep extra states because they could be cutoffs
                     alpha = Math.Max(alpha, value);
                 }
+                Console.WriteLine("total negamax calls: " + evals);
                 var failCheck = DateTime.UtcNow - start;
                 if (!ignoringTimer && bestOverall != null && failCheck.TotalMilliseconds > MillisecondsPerMove) break;
                 bestOverall = bestMove;
@@ -86,7 +87,6 @@ namespace GameFrame
                 depth += 2;
                 if (depth > maxSearchDepth) break;
             }
-            Console.WriteLine(evals);
             bestOverall.PreRun();
             return bestOverall;
         }
