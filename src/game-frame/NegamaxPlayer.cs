@@ -15,7 +15,11 @@ namespace GameFrame
         private long evals;
         private DateTime start;
         private readonly Random random;
+#if DEBUG
+        private bool ignoringTimer = true;
+#else
         private bool ignoringTimer = false;
+#endif
         private readonly int maxSearchDepth;
 
         public NegamaxPlayer(GameRules<TState> gameRules, int playerNumber, int millisecondsPerMove, float historyPowerBase, int? randomSeed = null, int maxSearchDepth = int.MaxValue)
@@ -34,15 +38,15 @@ namespace GameFrame
             start = DateTime.UtcNow;
             evals = 0;
             transpositionTable = new Dictionary<ulong, TranspositionTableEntry>();
-            List<TState> bestOverall = null;
             historyScores = new ulong[ushort.MaxValue];
+            TState bestOverall = default(TState);
             var possibleMoves = GameRules.Expand(state);
             int depth = 2;
             while (true)
             {
                 Console.WriteLine("search depth: " + depth);
                 float best = float.MinValue;
-                List<TState> bestMoves = new List<TState>();
+                TState bestMove = default(TState);
                 var alpha = float.MinValue;
                 foreach (var successor in possibleMoves)
                 {
@@ -55,17 +59,14 @@ namespace GameFrame
                     if (value > best)
                     {
                         best = value;
-                        bestMoves = new List<TState> { successor };
+                        bestMove = successor;
                     }
-                    else if (value == best)
-                    {
-                        bestMoves.Add(successor);
-                    }
+                    // cannot keep extra states because they could be cutoffs
                     alpha = Math.Max(alpha, value);
                 }
                 var failCheck = DateTime.UtcNow - start;
                 if (!ignoringTimer && bestOverall != null && failCheck.TotalMilliseconds > MillisecondsPerMove) break;
-                bestOverall = bestMoves;
+                bestOverall = bestMove;
                 if (best > 0.9f)
                 {
                     Console.WriteLine($"Win found for {Name}.");
@@ -85,9 +86,8 @@ namespace GameFrame
                 if (depth > maxSearchDepth) break;
             }
             Console.WriteLine(evals);
-            var selection = bestOverall[random.Next(bestOverall.Count)];
-            selection.PreRun();
-            return selection;
+            bestOverall.PreRun();
+            return bestOverall;
         }
 
         private float Negamax(TState state, int depth, float alpha, float beta)
