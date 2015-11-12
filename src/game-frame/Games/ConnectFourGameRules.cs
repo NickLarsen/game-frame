@@ -102,17 +102,10 @@ namespace GameFrame.Games
             for (int i = 0; i < 7; i++)
             {
                 ulong col = (all >> (i * 6)) & 0x3fUL;
-                int row = BitCount(col);
+                int row = BitTwiddling.BitCount(col);
                 if (row < 6) successors.Add(state.ApplyMove(i * 6 + row));
             }
             return successors;
-        }
-
-        private static int BitCount(ulong value)
-        {
-            ulong result = value - ((value >> 1) & 0x5555555555555555UL);
-            result = (result & 0x3333333333333333UL) + ((result >> 2) & 0x3333333333333333UL);
-            return (int)(unchecked(((result + (result >> 4)) & 0xF0F0F0F0F0F0F0FUL) * 0x101010101010101UL) >> 56);
         }
 
         public override float? DetermineWinner(ConnectFourState state)

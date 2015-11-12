@@ -63,6 +63,7 @@
     <Compile Include="Games\ConnectFourGameRules.cs" />
     <Compile Include="Games\NineMensMorrisGameRules.cs" />
     <Compile Include="Games\TicTacToeGameRules.cs" />
+    <Compile Include="Helpers\BitTwiddling.cs" />
     <Compile Include="IState.cs" />
     <Compile Include="NegamaxPlayer.cs" />
     <Compile Include="Player.cs" />
