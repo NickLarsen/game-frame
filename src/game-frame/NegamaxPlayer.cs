@@ -11,7 +11,7 @@ namespace GameFrame
         public float HistoryPowerBase { get; }
 
         private Dictionary<ulong, TranspositionTableEntry> transpositionTable;
-        private ulong[] historyScores;
+        private ulong[][] historyScores;
         private long evals;
         private DateTime start;
         private readonly Random random;
@@ -38,7 +38,7 @@ namespace GameFrame
             start = DateTime.UtcNow;
             evals = 0;
             transpositionTable = new Dictionary<ulong, TranspositionTableEntry>();
-            historyScores = new ulong[ushort.MaxValue];
+            historyScores = new ulong[2][] { new ulong[ushort.MaxValue], new ulong[ushort.MaxValue] };
             TState bestOverall = default(TState);
             var possibleMoves = OrderRandom(GameRules.Expand(state));
             int depth = 2;
@@ -136,7 +136,8 @@ namespace GameFrame
                 {
                     var successorHash = successor.GetHistoryHash();
                     var stateHistoryValue = (ulong)Math.Ceiling(Math.Pow(HistoryPowerBase, depth));
-                    checked { historyScores[successorHash] += stateHistoryValue; }
+                    var playerIndex = (state.ActivePlayer + 1) / 2;
+                    checked { historyScores[playerIndex][successorHash] += stateHistoryValue; }
                     break;
                 };
             }
@@ -167,7 +168,9 @@ namespace GameFrame
             ulong j = 0;
             for (int i = 0; i < successors.Count; i++)
             {
-                ulong historyScore = historyScores[successors[i].GetHistoryHash() & 0xffffU];
+                var successor = successors[i];
+                var playerIndex = (successor.ActivePlayer + 1) / 2;
+                ulong historyScore = historyScores[playerIndex][successor.GetHistoryHash() & 0xffffU];
                 scores[i] = historyScore << maxSuccessorsBits | j;
                 j++;
             }
