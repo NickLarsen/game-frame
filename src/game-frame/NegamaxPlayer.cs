@@ -123,6 +123,7 @@ namespace GameFrame
                 return state.GetHeuristicValue();
             }
             float best = float.MinValue;
+            uint bestHistoryHash = 0U;
             var successors = OrderSuccessors(GameRules.Expand(state));
             foreach (var successor in successors)
             {
@@ -131,14 +132,14 @@ namespace GameFrame
                 successor.PreRun();
                 var value = -Negamax(successor, depth-1, -beta, -alpha);
                 successor.PostRun();
-                best = Math.Max(best, value);
+                if (value > best)
+                {
+                    best = value;
+                    bestHistoryHash = successor.GetHistoryHash();
+                }
                 alpha = Math.Max(alpha, value);
                 if (alpha >= beta)
                 {
-                    var successorHash = successor.GetHistoryHash();
-                    var stateHistoryValue = (ulong)Math.Ceiling(Math.Pow(HistoryPowerBase, depth));
-                    var playerIndex = (state.ActivePlayer + 1) / 2;
-                    checked { historyScores[playerIndex][successorHash] += stateHistoryValue; }
                     break;
                 };
             }
@@ -157,6 +158,9 @@ namespace GameFrame
                 ttEntry.Type = TranspositionTableEntryType.Exact;
             }
             ttStore(stateHash, ttEntry);
+            var stateHistoryValue = (ulong)Math.Ceiling(Math.Pow(HistoryPowerBase, depth));
+            var playerIndex = (state.ActivePlayer + 1) / 2;
+            checked { historyScores[playerIndex][bestHistoryHash] += stateHistoryValue; }
             return best;
         }
 
