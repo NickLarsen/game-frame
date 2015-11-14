@@ -94,6 +94,15 @@ namespace GameFrame
         private float Negamax(TState state, int depth, float alpha, float beta)
         {
             evals++;
+            var score = GameRules.DetermineWinner(state);
+            if (score.HasValue)
+            {
+                return score.Value;
+            }
+            if (depth == 0)
+            {
+                return state.GetHeuristicValue();
+            }
             float alphaOriginal = alpha;
             var stateHash = state.GetStateHash();
             var ttEntry = ttLookup(stateHash);
@@ -112,15 +121,6 @@ namespace GameFrame
                     beta = Math.Min(beta, ttEntry.Value);
                 }
                 if (alpha >= beta) return ttEntry.Value;
-            }
-            var score = GameRules.DetermineWinner(state);
-            if (score.HasValue)
-            {
-                return score.Value;
-            }
-            if (depth == 0)
-            {
-                return state.GetHeuristicValue();
             }
             float best = float.MinValue;
             uint bestHistoryHash = 0U;
