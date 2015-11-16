@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace GameFrame
 {
     public class NegamaxPlayer<TState> : Player<TState> where TState: IState
     {
-        public int PlayerNumber { get; }
         public int MillisecondsPerMove { get; }
         public float HistoryPowerBase { get; }
 
@@ -25,7 +23,6 @@ namespace GameFrame
         public NegamaxPlayer(GameRules<TState> gameRules, int playerNumber, int millisecondsPerMove, float historyPowerBase, int? randomSeed = null, int maxSearchDepth = int.MaxValue)
             : base(gameRules)
         {
-            PlayerNumber = playerNumber;
             Name = playerNumber == 1 ? gameRules.FirstPlayerName : gameRules.SecondPlayerName;
             MillisecondsPerMove = millisecondsPerMove;
             HistoryPowerBase = historyPowerBase;
