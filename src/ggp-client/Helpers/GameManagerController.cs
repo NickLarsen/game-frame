@@ -6,9 +6,10 @@ using ggp_client.Models;
 
 namespace ggp_client.Helpers
 {
+    // classes that inherit from this should have a RoutePrefix set to the name of the bot
     public abstract class GameManagerController : Controller
     {
-        [Route("")] // classes that inherit from this should have a RoutePrefix set to the name of the bot
+        [Route("")]
         public ActionResult Index()
         {
             string content = GetRequestContent();
