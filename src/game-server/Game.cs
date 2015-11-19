@@ -51,7 +51,7 @@ namespace GameServer
             var gameState = GenerateWireState();
             if (DetermineWinners(gameState).Any())
             {
-                WhenAllReady(AnnounceWinner);
+                WhenAllReady(AnnounceResults);
             }
             else
             {
@@ -108,13 +108,13 @@ namespace GameServer
             UpdateGameState();
         }
 
-        private void AnnounceWinner()
+        private void AnnounceResults()
         {
             var gameState = GenerateWireState();
             var winners = DetermineWinners(gameState);
             var winner = winners.Count == 1 ? winners[0].Name : "draw";
-            player1.Send("announce-winner winner=" + winner);
-            player2.Send("announce-winner winner=" + winner);
+            player1.Send("announce-results winner=" + winner);
+            player2.Send("announce-results winner=" + winner);
             if (OnCompleted != null)
             {
                 OnCompleted(this, winner);
