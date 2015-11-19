@@ -7,6 +7,7 @@ namespace GameFrame
     {
         public int MillisecondsPerMove { get; }
         public float HistoryPowerBase { get; }
+        public string Role { get; }
 
         private Dictionary<ulong, TranspositionTableEntry> transpositionTable;
         private ulong[][] historyScores;
@@ -20,10 +21,10 @@ namespace GameFrame
 #endif
         private readonly int maxSearchDepth;
 
-        public NegamaxPlayer(GameRules<TState> gameRules, int playerNumber, int millisecondsPerMove, float historyPowerBase, int? randomSeed = null, int maxSearchDepth = int.MaxValue)
+        public NegamaxPlayer(GameRules<TState> gameRules, string role, int millisecondsPerMove, float historyPowerBase, int? randomSeed = null, int maxSearchDepth = int.MaxValue)
             : base(gameRules)
         {
-            Name = playerNumber == 1 ? gameRules.FirstPlayerName : gameRules.SecondPlayerName;
+            Role = role;
             MillisecondsPerMove = millisecondsPerMove;
             HistoryPowerBase = historyPowerBase;
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
@@ -68,12 +69,12 @@ namespace GameFrame
                 bestOverall = bestMove;
                 if (best > 0.9f)
                 {
-                    Console.WriteLine($"Win found for {Name}.");
+                    Console.WriteLine($"Win found for {Role}.");
                     break;
                 }
                 if (best < -0.9f)
                 {
-                    Console.WriteLine($"Loss found for {Name}.");
+                    Console.WriteLine($"Loss found for {Role}.");
                     break;
                 }
                 if (best == 0f)

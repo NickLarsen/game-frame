@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameFrame;
 
 namespace GameServer
 {
-    internal delegate void OnCompletedHandler(Game game, string winner);
+    internal delegate void OnCompletedHandler<TState>(Game<TState> game, string winner) where TState : IState;
 
-    abstract class Game
+    abstract class Game<TState> where TState : IState
     {
+        protected readonly GameRules<TState> gameRules;
+
         private readonly ClientConnection player1;
         private readonly ClientConnection player2;
         private List<string> moves;
@@ -15,20 +18,19 @@ namespace GameServer
         private bool player2Ready = false;
         private Action readyAction;
         private string currentStatus;
-        private readonly string name;
         private readonly int millisPerMove;
 
-        public Game(ClientConnection player1, ClientConnection player2, string name, int millisPerMove)
+        public Game(ClientConnection player1, ClientConnection player2, GameRules<TState> rules, int millisPerMove)
         {
             this.player1 = player1;
             this.player2 = player2;
-            this.name = name;
+            this.gameRules = rules;
             this.millisPerMove = millisPerMove;
         }
 
         public string GetDescription()
         {
-            return name + " => " + player1.Name + " vs " + player2.Name;
+            return gameRules.Name + " => " + player1.Name + " vs " + player2.Name;
         }
 
         public void Start()
@@ -40,8 +42,8 @@ namespace GameServer
         {
             moves = new List<string>();
             WhenAllReady(UpdateGameState);
-            player1.Send("prepare-new-game game=" + name + " player-number=1 milliseconds-per-move=" + millisPerMove);
-            player2.Send("prepare-new-game game=" + name + " player-number=-1 milliseconds-per-move=" + millisPerMove);
+            player1.Send($"prepare-new-game game={gameRules.Name} role={gameRules.Roles[0]} milliseconds-per-move={millisPerMove}");
+            player2.Send($"prepare-new-game game={gameRules.Name} role={gameRules.Roles[1]} milliseconds-per-move={millisPerMove}");
         }
 
         private void UpdateGameState()
@@ -134,6 +136,6 @@ namespace GameServer
             }
         }
 
-        public event OnCompletedHandler OnCompleted;
+        public event OnCompletedHandler<TState> OnCompleted;
     }
 }

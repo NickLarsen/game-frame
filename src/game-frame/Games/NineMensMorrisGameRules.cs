@@ -285,8 +285,8 @@ namespace GameFrame.Games
 
     public class NineMensMorrisGameRules : GameRules<NineMensMorrisState>
     {
-        public override string FirstPlayerName => "White";
-        public override string SecondPlayerName => "Black";
+        public override string Name { get; } = "ninemensmorris";
+        public override string[] Roles { get; } = { "White", "Black" };
 
         public override List<NineMensMorrisState> Expand(NineMensMorrisState state)
         {

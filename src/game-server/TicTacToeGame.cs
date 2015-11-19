@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GameFrame.Games;
 
 namespace GameServer
 {
-    class TicTacToeGame : Game
+    class TicTacToeGame : Game<TicTacToeState>
     {
-        private readonly TicTacToeGameRules gameRules = new TicTacToeGameRules();
-
         public TicTacToeGame(ClientConnection player1, ClientConnection player2)
-            : base(player1, player2, "tictactoe", 1000)
+            : base(player1, player2, new TicTacToeGameRules(), 1000)
         {
         }
 

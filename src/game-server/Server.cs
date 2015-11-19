@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using GameFrame;
 
 namespace GameServer
 {
@@ -71,14 +72,14 @@ namespace GameServer
             }
         }
 
-        private void PlayGame(Game game)
+        private void PlayGame<TState>(Game<TState> game) where TState : IState
         {
             game.OnCompleted += GameCompletedHandler;
             Log("Starting Game: " + game.GetDescription());
             game.Start();
         }
 
-        private void GameCompletedHandler(Game game, string winner)
+        private void GameCompletedHandler<TState>(Game<TState> game, string winner) where TState : IState
         {
             Log("Ending Game: " + game.GetDescription() + ", winner = " + winner);
         }

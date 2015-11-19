@@ -14,9 +14,9 @@ namespace GameServer
         public void PrepareNewGame(Dictionary<string, string> parameters)
         {
             var gameRules = new NineMensMorrisGameRules();
-            var playerNumber = int.Parse(parameters["player-number"]);
+            var role = parameters["role"];
             var moveTime = int.Parse(parameters["milliseconds-per-move"]);
-            player = new NegamaxPlayer<NineMensMorrisState>(gameRules, playerNumber, moveTime, 2f, null);
+            player = new NegamaxPlayer<NineMensMorrisState>(gameRules, role, moveTime, 2f, null);
         }
 
         public void UpdateGameState(Dictionary<string, string> parameters)

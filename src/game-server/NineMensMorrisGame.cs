@@ -5,12 +5,10 @@ using GameFrame.Games;
 
 namespace GameServer
 {
-    class NineMensMorrisGame : Game
+    class NineMensMorrisGame : Game<NineMensMorrisState>
     {
-        private readonly NineMensMorrisGameRules gameRules = new NineMensMorrisGameRules();
-
         public NineMensMorrisGame(ClientConnection player1, ClientConnection player2)
-            : base(player1, player2, "ninemensmorris", 10000)
+            : base(player1, player2, new NineMensMorrisGameRules(), 10000)
         {
         }
 

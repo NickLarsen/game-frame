@@ -66,8 +66,8 @@ namespace GameFrame.Games
 
     public class TicTacToeGameRules : GameRules<TicTacToeState>
     {
-        public override string FirstPlayerName => "X";
-        public override string SecondPlayerName => "O";
+        public override string Name { get; } = "tictactoe";
+        public override string[] Roles { get; } = { "X", "O" };
 
         public override List<TicTacToeState> Expand(TicTacToeState state)
         {

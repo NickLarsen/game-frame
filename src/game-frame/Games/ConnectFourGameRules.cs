@@ -90,8 +90,8 @@ namespace GameFrame.Games
 
     public class ConnectFourGameRules : GameRules<ConnectFourState>
     {
-        public override string FirstPlayerName => "W";
-        public override string SecondPlayerName => "B";
+        public override string Name { get; } = "connectfour";
+        public override string[] Roles { get; } = { "Red", "Black" };
 
         public override List<ConnectFourState> Expand(ConnectFourState state)
         {
