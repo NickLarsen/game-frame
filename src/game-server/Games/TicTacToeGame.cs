@@ -34,19 +34,14 @@ namespace GameServer.Games
 
         private static TicTacToeState BuildState(string serverState)
         {
-            var moves = serverState.ToCharArray().Select(m => int.Parse(m.ToString())).ToArray();
-            TicTacToeState state = new TicTacToeState()
-            {
-                Board = new int?[9],
-                Empties = 9 - moves.Length,
-                ActivePlayer = moves.Length % 2 == 0 ? 1 : -1,
-                LastMove = moves.Length == 0 ? -1 : moves.Last(),
-            };
-            var playerNumber = 1;
+            var moves = serverState.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                .Select(m => int.Parse(m))
+                .ToArray();
+            var state = TicTacToeState.Empty;
             foreach (var move in moves)
             {
-                state.Board[move] = playerNumber;
-                playerNumber *= -1;
+                state.ApplyMove(move);
+                state.PreRun();
             }
             return state;
         }

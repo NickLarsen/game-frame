@@ -44,6 +44,19 @@ namespace GameFrame.Games
             LastMove = -1,
         };
 
+        public TicTacToeState ApplyMove(int move)
+        {
+            var successor = new TicTacToeState
+            {
+                Board = Board.ToArray(),
+                Empties = Empties - 1,
+                ActivePlayer = -ActivePlayer,
+                LastMove = move,
+            };
+            successor.Board[move] = ActivePlayer;
+            return successor;
+        }
+
         public override string ToString()
         {
             var args = Board.Select(m => m.HasValue ? (m.Value == 1 ? "X" : "O") : " ").ToArray();
@@ -75,14 +88,7 @@ namespace GameFrame.Games
             for (int i = 0; i < state.Board.Length; i++)
             {
                 if (state.Board[i].HasValue) continue;
-                var successor = new TicTacToeState()
-                {
-                    Board = state.Board.ToArray(),
-                    Empties = state.Empties - 1,
-                    ActivePlayer = -state.ActivePlayer,
-                    LastMove = i,
-                };
-                successor.Board[i] = state.ActivePlayer;
+                var successor = state.ApplyMove(i);
                 successors.Add(successor);
             }
             return successors;
