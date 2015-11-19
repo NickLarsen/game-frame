@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using GameFrame;
+using GameServer.Games;
 
 namespace GameServer
 {

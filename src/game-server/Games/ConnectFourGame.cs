@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using GameFrame.Games;
 
-namespace GameServer
+namespace GameServer.Games
 {
-    class TicTacToeGame : Game<TicTacToeState>
+    class ConnectFourGame : Game<ConnectFourState>
     {
-        public TicTacToeGame(ClientConnection player1, ClientConnection player2)
-            : base(player1, player2, new TicTacToeGameRules(), 1000)
+        public ConnectFourGame(ClientConnection player1, ClientConnection player2)
+            : base(player1, player2, new ConnectFourGameRules(), 10000)
         {
         }
 
@@ -32,21 +33,16 @@ namespace GameServer
             return result;
         }
 
-        private static TicTacToeState BuildState(string serverState)
+        private static ConnectFourState BuildState(string serverState)
         {
-            var moves = serverState.ToCharArray().Select(m => int.Parse(m.ToString())).ToArray();
-            TicTacToeState state = new TicTacToeState()
-            {
-                Board = new int?[9],
-                Empties = 9 - moves.Length,
-                ActivePlayer = moves.Length % 2 == 0 ? 1 : -1,
-                LastMove = moves.Length == 0 ? -1 : moves.Last(),
-            };
-            var playerNumber = 1;
+            var moves = serverState.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                .Select(m => int.Parse(m))
+                .ToArray();
+            var state = ConnectFourState.Empty;
             foreach (var move in moves)
             {
-                state.Board[move] = playerNumber;
-                playerNumber *= -1;
+                state.ApplyMove(move);
+                state.PreRun(); // updates visited states for draw check
             }
             return state;
         }

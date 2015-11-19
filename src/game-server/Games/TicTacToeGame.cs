@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GameFrame.Games;
 
-namespace GameServer
+namespace GameServer.Games
 {
-    class NineMensMorrisGame : Game<NineMensMorrisState>
+    class TicTacToeGame : Game<TicTacToeState>
     {
-        public NineMensMorrisGame(ClientConnection player1, ClientConnection player2)
-            : base(player1, player2, new NineMensMorrisGameRules(), 10000)
+        public TicTacToeGame(ClientConnection player1, ClientConnection player2)
+            : base(player1, player2, new TicTacToeGameRules(), 1000)
         {
         }
 
@@ -33,17 +32,21 @@ namespace GameServer
             return result;
         }
 
-        private static NineMensMorrisState BuildState(string serverState)
+        private static TicTacToeState BuildState(string serverState)
         {
-            var moves = serverState.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-                .Select(m => m.Split(','))
-                .Select(m => Tuple.Create(int.Parse(m[0]), int.Parse(m[1]), int.Parse(m[2])))
-                .ToArray();
-            var state = NineMensMorrisState.Empty;
+            var moves = serverState.ToCharArray().Select(m => int.Parse(m.ToString())).ToArray();
+            TicTacToeState state = new TicTacToeState()
+            {
+                Board = new int?[9],
+                Empties = 9 - moves.Length,
+                ActivePlayer = moves.Length % 2 == 0 ? 1 : -1,
+                LastMove = moves.Length == 0 ? -1 : moves.Last(),
+            };
+            var playerNumber = 1;
             foreach (var move in moves)
             {
-                state.ApplyMove(move);
-                state.PreRun(); // updates visited states for draw check
+                state.Board[move] = playerNumber;
+                playerNumber *= -1;
             }
             return state;
         }
