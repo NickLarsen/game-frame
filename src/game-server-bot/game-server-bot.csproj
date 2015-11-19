@@ -67,9 +67,10 @@
     <Compile Include="GameHandler.cs" />
     <Compile Include="GameServerBot.cs" />
     <Compile Include="GameServerBotProgram.cs" />
-    <Compile Include="NineMensMorrisHandler.cs" />
+    <Compile Include="Games\ConnectFourHandler.cs" />
+    <Compile Include="Games\NineMensMorrisHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TicTacToeHandler.cs" />
+    <Compile Include="Games\TicTacToeHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -4,7 +4,7 @@ using System.Linq;
 using GameFrame;
 using GameFrame.Games;
 
-namespace GameServer
+namespace GameServer.Games
 {
     class NineMensMorrisHandler : GameHandler
     {
