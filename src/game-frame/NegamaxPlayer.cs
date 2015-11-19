@@ -9,7 +9,7 @@ namespace GameFrame
         public float HistoryPowerBase { get; }
         public string Role { get; }
 
-        private Dictionary<ulong, TranspositionTableEntry> transpositionTable;
+        private readonly TranspositionTable transpositionTable = new TranspositionTable();
         private ulong[][] historyScores;
         private long evals;
         private DateTime start;
@@ -35,7 +35,7 @@ namespace GameFrame
         {
             start = DateTime.UtcNow;
             evals = 0;
-            transpositionTable = new Dictionary<ulong, TranspositionTableEntry>();
+            transpositionTable.Clear();
             historyScores = new ulong[2][] { new ulong[ushort.MaxValue], new ulong[ushort.MaxValue] };
             TState bestOverall = default(TState);
             var possibleMoves = OrderRandom(GameRules.Expand(state));
@@ -103,7 +103,7 @@ namespace GameFrame
             }
             float alphaOriginal = alpha;
             var stateHash = state.GetStateHash();
-            var ttEntry = ttLookup(stateHash);
+            var ttEntry = transpositionTable.Lookup(stateHash);
             if (ttEntry.Type != TranspositionTableEntryType.Invalid && ttEntry.Depth >= depth)
             {
                 if (ttEntry.Type == TranspositionTableEntryType.Exact)
@@ -155,7 +155,7 @@ namespace GameFrame
             {
                 ttEntry.Type = TranspositionTableEntryType.Exact;
             }
-            ttStore(stateHash, ttEntry);
+            transpositionTable.Store(stateHash, ttEntry);
             var stateHistoryValue = (ulong)Math.Ceiling(Math.Pow(HistoryPowerBase, depth));
             var playerIndex = (state.ActivePlayer + 1) / 2;
             checked { historyScores[playerIndex][bestHistoryHash] += stateHistoryValue; }
@@ -228,38 +228,6 @@ namespace GameFrame
                     }
                 }
             }
-        }
-
-        private TranspositionTableEntry ttLookup(ulong key)
-        {
-            if (transpositionTable.ContainsKey(key))
-            {
-                return transpositionTable[key];
-            }
-            return new TranspositionTableEntry()
-            {
-                Type = TranspositionTableEntryType.Invalid,
-            };
-        }
-
-        private void ttStore(ulong key, TranspositionTableEntry entry)
-        {
-            transpositionTable[key] = entry;
-        }
-
-        private class TranspositionTableEntry
-        {
-            public TranspositionTableEntryType Type { get; set; }
-            public float Value { get; set; }
-            public int Depth { get; set; }
-        }
-
-        private enum TranspositionTableEntryType
-        {
-            Invalid,
-            Exact,
-            Lowerbound,
-            Upperbound,
         }
     }
 }
