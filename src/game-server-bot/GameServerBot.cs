@@ -59,6 +59,7 @@ namespace GameServer
         {
             if (gameType == "tictactoe") return new TicTacToeHandler();
             if (gameType == "ninemensmorris") return new NineMensMorrisHandler();
+            if (gameType == "connectfour") return new ConnectFourHandler();
             throw new Exception("No handler for the specified game: " + gameType);
         }
 

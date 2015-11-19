@@ -68,7 +68,8 @@ namespace GameServer
                 if (bots.Count == 2)
                 {
                     //PlayGame(new TicTacToeGame(bots[0], bots[1]));
-                    PlayGame(new NineMensMorrisGame(bots[0], bots[1]));
+                    //PlayGame(new NineMensMorrisGame(bots[0], bots[1]));
+                    PlayGame(new ConnectFourGame(bots[0], bots[1]));
                 }
             }
         }
