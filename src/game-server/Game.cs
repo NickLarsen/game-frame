@@ -66,7 +66,28 @@ namespace GameServer
             return string.Join(";", moves);
         }
 
-        protected abstract List<ClientConnection> DetermineWinners(string gameState, ClientConnection player1, ClientConnection player2);
+        private List<ClientConnection> DetermineWinners(string gameState, ClientConnection player1, ClientConnection player2)
+        {
+            var result = new List<ClientConnection>();
+            var state = BuildState(gameState);
+            var winner = gameRules.GetWinningPlayerNumber(state);
+            if (winner.HasValue)
+            {
+                if (winner == 0)
+                {
+                    result.Add(player1);
+                    result.Add(player2);
+                }
+                else
+                {
+                    var p = winner == 1 ? player1 : player2;
+                    result.Add(p);
+                }
+            }
+            return result;
+        }
+
+        protected abstract TState BuildState(string serverState);
 
         private void GameLoop()
         {
