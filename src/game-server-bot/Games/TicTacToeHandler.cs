@@ -1,50 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using GameFrame;
 using GameFrame.Games;
 
 namespace GameServer.Games
 {
-    class TicTacToeHandler : GameHandler
+    class TicTacToeHandler : GameHandler<TicTacToeState>
     {
-        private Player<TicTacToeState> player;
-        private TicTacToeState state;
-
-        public void PrepareNewGame(Dictionary<string, string> parameters)
+        public TicTacToeHandler()
+            : base(new TicTacToeGameRules())
         {
-            var gameRules = new TicTacToeGameRules();
-            var role = parameters["role"];
-            var moveTime = int.Parse(parameters["milliseconds-per-move"]);
-            player = new NegamaxPlayer<TicTacToeState>(gameRules, role, moveTime, 2f, null);
         }
 
-        public void UpdateGameState(Dictionary<string, string> parameters)
+        protected override TicTacToeState BuildState(string serverState)
         {
-            state = BuildState(parameters["state"]);
-        }
-
-        private static TicTacToeState BuildState(string serverState)
-        {
-            var moves = serverState.ToCharArray().Select(m => int.Parse(m.ToString())).ToArray();
-            var state = new TicTacToeState()
-            {
-                Board = new int?[9],
-                Empties = 9 - moves.Length,
-                ActivePlayer = moves.Length % 2 == 0 ? 1 : -1,
-                LastMove = moves.Length == 0 ? -1 : moves.Last(),
-            };
-            var playerNumber = 1;
+            var moves = serverState.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                .Select(m => int.Parse(m))
+                .ToArray();
+            var state = TicTacToeState.Empty;
             foreach (var move in moves)
             {
-                state.Board[move] = playerNumber;
-                playerNumber *= -1;
+                state.ApplyMove(move);
+                state.PreRun();
             }
             return state;
-        }
-
-        public IState MakeMove(Dictionary<string, string> parameters)
-        {
-            return player.MakeMove(state);
         }
     }
 }

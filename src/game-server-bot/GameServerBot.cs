@@ -10,7 +10,7 @@ namespace GameServer
     {
         private readonly string serverHostName = Dns.GetHostName();
         private readonly int port = 11873;
-        private GameHandler gameHandler;
+        private IGameHandler gameHandler;
         private GameServerConnection connection;
         private readonly string name;
 
@@ -55,7 +55,7 @@ namespace GameServer
             }
         }
 
-        private GameHandler GetHandler(string gameType)
+        private IGameHandler GetHandler(string gameType)
         {
             if (gameType == "tictactoe") return new TicTacToeHandler();
             if (gameType == "ninemensmorris") return new NineMensMorrisHandler();
