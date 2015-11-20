@@ -7,7 +7,6 @@ namespace GameFrame
     {
         public int MillisecondsPerMove { get; }
         public float HistoryPowerBase { get; }
-        public string Role { get; }
 
         private readonly TranspositionTable transpositionTable = new TranspositionTable();
         private ulong[][] historyScores;
@@ -22,9 +21,8 @@ namespace GameFrame
         private readonly int maxSearchDepth;
 
         public NegamaxPlayer(GameRules<TState> gameRules, string role, int millisecondsPerMove, float historyPowerBase, int? randomSeed = null, int maxSearchDepth = int.MaxValue)
-            : base(gameRules)
+            : base(role, gameRules)
         {
-            Role = role;
             MillisecondsPerMove = millisecondsPerMove;
             HistoryPowerBase = historyPowerBase;
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
@@ -92,10 +90,10 @@ namespace GameFrame
         private float Negamax(TState state, int depth, float alpha, float beta)
         {
             evals++;
-            var score = GameRules.DetermineWinner(state);
-            if (score.HasValue)
+            var utility = GameRules.CalculateUtility(state);
+            if (utility.IsTerminal)
             {
-                return score.Value;
+                return utility[state.ActivePlayer == 1 ? 0 : 1];
             }
             if (depth == 0)
             {

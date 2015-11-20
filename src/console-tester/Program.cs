@@ -7,13 +7,13 @@ namespace ConsoleTester
 {
     class Program
     {
-        private static readonly int? debugRandomSeed = 2348;
+        private static readonly int? debugRandomSeed = 123;
 
         static void Main(string[] args)
         {
-            //PlayTicTacToe();
+            PlayTicTacToe();
             //PlayConnectFour();
-            TestConnectFour();
+            //TestConnectFour();
             //PlayNineMensMorris();
             //TestNineMensMorris();
         }
@@ -113,19 +113,16 @@ namespace ConsoleTester
         {
             Console.WriteLine(state.ToString());
             var currentPlayer = state.ActivePlayer == 1 ? p1 : p2;
-            float? utility = null;
-            while (utility == null)
+            var utility = new Utility(rules.Roles);
+            while (!utility.IsTerminal)
             {
                 state = currentPlayer.MakeMove(state);
-                var lastMovePlayerName = state.ActivePlayer == 1 ? rules.Roles[1] : rules.Roles[0];
-                Console.WriteLine($"Move: {lastMovePlayerName} = " + state.LastMoveDescription());
+                Console.WriteLine($"Move: {currentPlayer.Role} = " + state.LastMoveDescription());
                 Console.WriteLine(state.ToString());
                 currentPlayer = currentPlayer == p1 ? p2 : p1;
-                utility = rules.DetermineWinner(state);
+                utility = rules.CalculateUtility(state);
             }
-            if (utility == 0f) Console.WriteLine("Result: Tie");
-            if (utility < 0f) Console.WriteLine($"Result: {rules.Roles[0]} wins!");
-            if (utility > 0f) Console.WriteLine($"Result: {rules.Roles[1]} wins!");
+            Console.WriteLine($"Result:  {utility}");
         }
     }
 }

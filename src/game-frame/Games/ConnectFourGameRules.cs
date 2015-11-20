@@ -55,7 +55,7 @@ namespace GameFrame.Games
 
         public override string ToString()
         {
-            var args = GetBoard().Select((m, i) => (m == 0 ? "*" : (m == 1 ? "X" : "O")) + (i % 7 == 6 ? "\n" : "")).ToArray();
+            var args = GetBoard().Select((m, i) => (m == 0 ? "*" : (m == 1 ? "R" : "B")) + (i % 7 == 6 ? "\n" : "")).ToArray();
             return string.Join("", args);
         }
 
@@ -97,20 +97,22 @@ namespace GameFrame.Games
             return successors;
         }
 
-        public override float? DetermineWinner(ConnectFourState state)
+        public override Utility CalculateUtility(ConnectFourState state)
         {
-            if (state.LastMove == -1) return null;
+            var utility = new Utility(Roles);
+            if (state.LastMove == -1) return utility;
             ulong lastPlayerMoves = state.ActivePlayer == 1 ? state.Player2Moves : state.Player1Moves;
             foreach (var winner in winners[state.LastMove])
             {
-                if ((lastPlayerMoves & winner) == winner)
-                {
-                    return -1f;
-                }
+                if ((lastPlayerMoves & winner) != winner) continue;
+                utility.IsTerminal = true;
+                utility[state.ActivePlayer == 1 ? 0 : 1] = -1f;
+                utility[state.ActivePlayer == 1 ? 1 : 0] = 1f;
+                break;
             }
             ulong empties = (state.Player1Moves | state.Player2Moves) ^ 0x3ffffffffffUL;
-            if (empties == 0U) return 0f;
-            return null;
+            if (empties == 0U) utility.IsTerminal = true;
+            return utility;
         }
 
         static ulong[][] BuildWinners(int rows, int cols)

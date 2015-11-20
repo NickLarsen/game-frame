@@ -388,19 +388,19 @@ namespace GameFrame.Games
             return successors;
         }
 
-        public override float? DetermineWinner(NineMensMorrisState state)
+        public override Utility CalculateUtility(NineMensMorrisState state)
         {
-            // TODO: if you're going to win, you want to win in shortest but if you are going to lose you want to lose in longest
-            if (state.RepeatedState) return 0f;
-            if (state.InPhase1()) return null;
-            var movementPenalty = state.GetTotalMoves() / 10000000f;
+            var utility = new Utility(Roles);
+            if (state.InPhase1()) return utility; // impossible to lose in phase 1, perf hack because checking for moves is slow
+            if (state.RepeatedState) utility.IsTerminal = true;
             var importantPieces = state.ActivePlayer == 1 ? state.WhiteRemaining : state.BlackRemaining;
-            if (importantPieces < 3) return -1f + movementPenalty;
-            if (state.ActivePlayerPhase2() && !AnyPhase2Moves(state)) // can only lose if active player cannot move
+            if (importantPieces < 3 || (state.ActivePlayerPhase2() && !AnyPhase2Moves(state)))
             {
-                return -1f + movementPenalty;
+                utility.IsTerminal = true;
+                utility[state.ActivePlayer == 1 ? 0 : 1] = -1f;
+                utility[state.ActivePlayer == 1 ? 1 : 0] = 1f;
             }
-            return null;
+            return utility;
         }
 
         private bool AnyPhase2Moves(NineMensMorrisState state)

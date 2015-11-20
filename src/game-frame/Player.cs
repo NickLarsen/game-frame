@@ -2,10 +2,12 @@
 {
     public abstract class Player<TState> where TState: IState
     {
+        public string Role { get; }
         protected GameRules<TState> GameRules { get; }
 
-        protected Player(GameRules<TState> gameRules)
+        protected Player(string role, GameRules<TState> gameRules)
         {
+            Role = role;
             GameRules = gameRules;
         }
 

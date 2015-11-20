@@ -81,9 +81,9 @@ namespace GameServer
             game.Start();
         }
 
-        private void GameCompletedHandler<TState>(Game<TState> game, string winner) where TState : IState
+        private void GameCompletedHandler<TState>(Game<TState> game, Utility results) where TState : IState
         {
-            Log("Ending Game: " + game.GetDescription() + ", winner = " + winner);
+            Log("Ending Game: " + game.GetDescription() + ", Results: " + results);
         }
 
         private void HandleDisconnect(ClientConnection client, Exception ex)

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using GameFrame;
 
 namespace GameServer
 {
-    internal delegate void OnCompletedHandler<TState>(Game<TState> game, string winner) where TState : IState;
+    internal delegate void OnCompletedHandler<TState>(Game<TState> game, Utility results) where TState : IState;
 
     abstract class Game<TState> where TState : IState
     {
@@ -49,7 +48,7 @@ namespace GameServer
         private void UpdateGameState()
         {
             var gameState = GenerateWireState();
-            if (DetermineWinners(gameState).Any())
+            if (GetUtility(gameState).IsTerminal)
             {
                 WhenAllReady(AnnounceResults);
             }
@@ -66,25 +65,11 @@ namespace GameServer
             return string.Join(";", moves);
         }
 
-        private List<ClientConnection> DetermineWinners(string gameState)
+        private Utility GetUtility(string gameState)
         {
-            var result = new List<ClientConnection>();
             var state = BuildState(gameState);
-            var winner = gameRules.DetermineWinner(state);
-            if (winner.HasValue)
-            {
-                if (winner == 0f)
-                {
-                    result.Add(player1);
-                    result.Add(player2);
-                }
-                else
-                {
-                    var p = state.ActivePlayer == 1 ? player2 : player1;
-                    result.Add(p);
-                }
-            }
-            return result;
+            var utility = gameRules.CalculateUtility(state);
+            return utility;
         }
 
         protected abstract TState BuildState(string serverState);
@@ -111,13 +96,12 @@ namespace GameServer
         private void AnnounceResults()
         {
             var gameState = GenerateWireState();
-            var winners = DetermineWinners(gameState);
-            var winner = winners.Count == 1 ? winners[0].Name : "draw";
-            player1.Send("announce-results winner=" + winner);
-            player2.Send("announce-results winner=" + winner);
+            var utility = GetUtility(gameState);
+            player1.Send($"announce-results {utility}");
+            player2.Send($"announce-results {utility}");
             if (OnCompleted != null)
             {
-                OnCompleted(this, winner);
+                OnCompleted(this, utility);
             }
         }
 

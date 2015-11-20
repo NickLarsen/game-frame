@@ -87,22 +87,24 @@ namespace GameFrame.Games
             return successors;
         }
 
-        public override float? DetermineWinner(TicTacToeState state)
+        public override Utility CalculateUtility(TicTacToeState state)
         {
-            if (state.LastMove == -1) return null;
+            var utility = new Utility(Roles);
+            if (state.LastMove == -1) return utility;
             uint player1Moves = state.Board & 0x15555U;
             uint player2Moves = (state.Board >> 1) & 0x15555U;
             var lastPlayerMoves = state.ActivePlayer == 1 ? player2Moves : player1Moves;
             foreach (var winner in winners[state.LastMove])
             {
-                if ((lastPlayerMoves & winner) == winner)
-                {
-                    return -1f;
-                }
+                if ((lastPlayerMoves & winner) != winner) continue;
+                utility.IsTerminal = true;
+                utility[state.ActivePlayer == 1 ? 0 : 1] = -1f;
+                utility[state.ActivePlayer == 1 ? 1 : 0] = 1f;
+                break;
             }
             uint empties = (player1Moves | player2Moves) ^ 0x15555U;
-            if (empties == 0U) return 0f;
-            return null;
+            if (empties == 0U) utility.IsTerminal = true;
+            return utility;
         }
 
         static readonly uint[][] winners = new uint[][]
