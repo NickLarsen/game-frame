@@ -5,20 +5,15 @@ namespace GameFrame.Games
 {
     public class TicTacToeState : IState
     {
-        public int?[] Board { get; set; }
+        public const int BoardLength = 9;
+
+        public uint Board { get; set; }
         public int ActivePlayer { get; set; }
         public int LastMove { get; set; }
 
         public ulong GetStateHash()
         {
-            ulong hash = 0;
-            for (int i = 0; i < Board.Length; i++)
-            {
-                int? stone = Board[i];
-                hash <<= 2;
-                hash |= stone == 1 ? 1UL : (stone == -1 ? 2UL : 0UL);
-            }
-            return hash;
+            return (ulong)Board;
         }
 
         public ushort GetHistoryHash()
@@ -36,7 +31,7 @@ namespace GameFrame.Games
 
         public static TicTacToeState Empty => new TicTacToeState()
         {
-            Board = new int?[9],
+            Board = 0U,
             ActivePlayer = 1,
             LastMove = -1,
         };
@@ -45,18 +40,28 @@ namespace GameFrame.Games
         {
             var successor = new TicTacToeState
             {
-                Board = Board.ToArray(),
+                Board = Board,
                 ActivePlayer = -ActivePlayer,
                 LastMove = move,
             };
-            successor.Board[move] = ActivePlayer;
+            successor.Board |= (ActivePlayer == 1 ? 1u : 2u) << (move * 2);
             return successor;
         }
 
         public override string ToString()
         {
-            var args = Board.Select(m => m.HasValue ? (m.Value == 1 ? "X" : "O") : " ").ToArray();
+            var args = GetBoardFormatArgs().Select(m => m == 0 ? " " : (m == 1 ? "W" : "B")).ToArray();
             return string.Format("{0}|{1}|{2}\n-+-+-\n{3}|{4}|{5}\n-+-+-\n{6}|{7}|{8}", args);
+        }
+
+        private int[] GetBoardFormatArgs()
+        {
+            var board = new int[BoardLength];
+            for (int i = 0; i < BoardLength; i++)
+            {
+                board[i] = (int)((Board >> (i * 2)) & 3UL);
+            }
+            return board;
         }
 
         public string LastMoveDescription()
@@ -73,9 +78,9 @@ namespace GameFrame.Games
         public override List<TicTacToeState> Expand(TicTacToeState state)
         {
             var successors = new List<TicTacToeState>();
-            for (int i = 0; i < state.Board.Length; i++)
+            for (int i = 0; i < TicTacToeState.BoardLength; i++)
             {
-                if (state.Board[i].HasValue) continue;
+                if (((state.Board >> (i * 2)) & 3UL) != 0UL) continue;
                 var successor = state.ApplyMove(i);
                 successors.Add(successor);
             }
@@ -85,15 +90,18 @@ namespace GameFrame.Games
         public override float? DetermineWinner(TicTacToeState state)
         {
             if (state.LastMove == -1) return null;
-            var lastPlayer = state.Board[state.LastMove];
+            var lastPlayerMoves = state.Board >> (state.ActivePlayer == 1 ? 1 : 0);
             foreach (var winner in winners[state.LastMove])
             {
-                if (winner.All(m => state.Board[m] == lastPlayer))
+                if ((lastPlayerMoves & winner) == winner)
                 {
                     return -1f;
                 }
             }
-            if (!state.Board.Any(m => m == null)) return 0f;
+            uint player1Moves = state.Board & 0x15555U;
+            uint player2Moves = (state.Board >> 1) & 0x15555U;
+            uint empties = (player1Moves | player2Moves) ^ 0x15555U;
+            if (empties == 0U) return 0f;
             return null;
         }
 
@@ -105,17 +113,17 @@ namespace GameFrame.Games
             return state.ActivePlayer * -1;
         }
 
-        static readonly Dictionary<int, int[][]> winners = new Dictionary<int, int[][]>
+        static readonly uint[][] winners = new uint[][]
         {
-            { 0,  new int[][] { new int[] { 1, 2 }, new int[] { 3, 6 }, new int[] { 4, 8 } } },
-            { 1,  new int[][] { new int[] { 0, 2 }, new int[] { 4, 7 } } },
-            { 2,  new int[][] { new int[] { 0, 1 }, new int[] { 5, 8 }, new int[] { 4, 6 } } },
-            { 3,  new int[][] { new int[] { 0, 6 }, new int[] { 4, 5 } } },
-            { 4,  new int[][] { new int[] { 0, 8 }, new int[] { 1, 7 }, new int[] { 3, 5 }, new int[] { 2, 6 } } },
-            { 5,  new int[][] { new int[] { 3, 4 }, new int[] { 2, 8 } } },
-            { 6,  new int[][] { new int[] { 0, 3 }, new int[] { 2, 4 }, new int[] { 7, 8 } } },
-            { 7,  new int[][] { new int[] { 1, 4 }, new int[] { 6, 8 } } },
-            { 8,  new int[][] { new int[] { 2, 5 }, new int[] { 6, 7 }, new int[] { 0, 4 } } },
+            new [] { 0x00015U, 0x01041U, 0x10101U },
+            new [] { 0x00015U, 0x04104U },
+            new [] { 0x00015U, 0x10410U, 0x01110U },
+            new [] { 0x01041U, 0x00540U },
+            new [] { 0x10101U, 0x04104U, 0x01110U, 0x00540U },
+            new [] { 0x10410U, 0x00540U },
+            new [] { 0x01041U, 0x01110U, 0x15000U },
+            new [] { 0x04104U, 0x15000U },
+            new [] { 0x10101U, 0x10410U, 0x15000U },
         };
     }
 }
