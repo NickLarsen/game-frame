@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using GameFrame.Helpers;
 
@@ -18,9 +17,9 @@ namespace GameFrame.Games
             return (ulong)(uint)Player1Moves.GetHashCode() << 32 | (ulong)(uint)Player2Moves.GetHashCode();
         }
 
-        public uint GetHistoryHash()
+        public ushort GetHistoryHash()
         {
-            return (uint)LastMove;
+            return (ushort)LastMove;
         }
 
         public float GetHeuristicValue()

@@ -121,7 +121,7 @@ namespace GameFrame
                 if (alpha >= beta) return ttEntry.Value;
             }
             float best = float.MinValue;
-            uint bestHistoryHash = 0U;
+            ushort bestHistoryHash = 0;
             var successors = OrderSuccessors(GameRules.Expand(state));
             foreach (var successor in successors)
             {

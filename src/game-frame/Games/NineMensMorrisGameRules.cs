@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace GameFrame.Games
@@ -25,9 +24,9 @@ namespace GameFrame.Games
             return boardHash;
         }
 
-        public uint GetHistoryHash()
+        public ushort GetHistoryHash()
         {
-            return (uint)(LastMove.Item1 + 1) << 8 | (uint)LastMove.Item2;
+            return (ushort)((uint)(LastMove.Item1 + 1) << 8 | (uint)LastMove.Item2);
         }
 
         public float GetHeuristicValue()

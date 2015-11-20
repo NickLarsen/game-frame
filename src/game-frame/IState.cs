@@ -4,7 +4,7 @@
     {
         int ActivePlayer { get; set; }
         ulong GetStateHash();
-        uint GetHistoryHash(); // This will only use the lower 16 bytes for indexing, so basically keep it to a ushort.
+        ushort GetHistoryHash();
         float GetHeuristicValue(); // this function should never return 0f else finding certain ties gets much harder
         string LastMoveDescription();
         void PreRun();
