@@ -113,18 +113,19 @@ namespace ConsoleTester
         {
             Console.WriteLine(state.ToString());
             var currentPlayer = state.ActivePlayer == 1 ? p1 : p2;
-            while (rules.DetermineWinner(state) == null)
+            float? utility = null;
+            while (utility == null)
             {
                 state = currentPlayer.MakeMove(state);
                 var lastMovePlayerName = state.ActivePlayer == 1 ? rules.Roles[1] : rules.Roles[0];
                 Console.WriteLine($"Move: {lastMovePlayerName} = " + state.LastMoveDescription());
                 Console.WriteLine(state.ToString());
                 currentPlayer = currentPlayer == p1 ? p2 : p1;
+                utility = rules.DetermineWinner(state);
             }
-            var winner = rules.DetermineWinner(state);
-            if (winner == 0f) Console.WriteLine("Result: Tie");
-            if (winner < 0f) Console.WriteLine($"Result: {rules.Roles[0]} wins!");
-            if (winner > 0f) Console.WriteLine($"Result: {rules.Roles[1]} wins!");
+            if (utility == 0f) Console.WriteLine("Result: Tie");
+            if (utility < 0f) Console.WriteLine($"Result: {rules.Roles[0]} wins!");
+            if (utility > 0f) Console.WriteLine($"Result: {rules.Roles[1]} wins!");
         }
     }
 }

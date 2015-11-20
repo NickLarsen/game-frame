@@ -6,7 +6,6 @@ namespace GameFrame
     {
         public abstract List<TState> Expand(TState state);
         public abstract float? DetermineWinner(TState state);
-        public abstract int? GetWinningPlayerNumber(TState state);
         public abstract string[] Roles { get; }
         public abstract string Name { get; }
     }

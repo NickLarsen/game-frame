@@ -70,17 +70,17 @@ namespace GameServer
         {
             var result = new List<ClientConnection>();
             var state = BuildState(gameState);
-            var winner = gameRules.GetWinningPlayerNumber(state);
+            var winner = gameRules.DetermineWinner(state);
             if (winner.HasValue)
             {
-                if (winner == 0)
+                if (winner == 0f)
                 {
                     result.Add(player1);
                     result.Add(player2);
                 }
                 else
                 {
-                    var p = winner == 1 ? player1 : player2;
+                    var p = state.ActivePlayer == 1 ? player2 : player1;
                     result.Add(p);
                 }
             }
