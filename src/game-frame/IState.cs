@@ -2,10 +2,10 @@
 {
     public interface IState
     {
-        int ActivePlayer { get; set; }
+        int ActivePlayer { get; }
         ulong GetStateHash();
         ushort GetHistoryHash();
-        float GetHeuristicValue(); // this function should never return 0f else finding certain ties gets much harder
+        float GetHeuristicValue();
         string LastMoveDescription();
         void PreRun();
         void PostRun();

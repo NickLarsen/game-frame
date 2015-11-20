@@ -194,34 +194,6 @@ namespace GameFrame.Games
             return LastMove.Item1 + "," + LastMove.Item2 + "," + LastMove.Item3;
         }
 
-        private static readonly int[][][] Mills = new int[][][]
-        {
-            new int[][] { new int[] { 1, 2 }, new int[] { 9, 21 } } ,
-            new int[][] { new int[] { 0, 2 }, new int[] { 4, 7 } },
-            new int[][] { new int[] { 0, 1 }, new int[] { 14, 23 } },
-            new int[][] { new int[] { 4, 5 }, new int[] { 10, 18 } },
-            new int[][] { new int[] { 3, 5 }, new int[] { 1, 7 } },
-            new int[][] { new int[] { 3, 4 }, new int[] { 13, 20 } },
-            new int[][] { new int[] { 7, 8 }, new int[] { 11, 15 } },
-            new int[][] { new int[] { 6, 8 }, new int[] { 1, 4 } },
-            new int[][] { new int[] { 6, 7 }, new int[] { 12, 17 } },
-            new int[][] { new int[] { 10, 11 }, new int[] { 0, 21 } },
-            new int[][] { new int[] { 9, 11 }, new int[] { 3, 18 } },
-            new int[][] { new int[] { 9, 10 }, new int[] { 6, 15 } },
-            new int[][] { new int[] { 13, 14 }, new int[] { 8, 17 } },
-            new int[][] { new int[] { 12, 14 }, new int[] { 5, 20 } },
-            new int[][] { new int[] { 12, 13 }, new int[] { 2, 23 } },
-            new int[][] { new int[] { 16, 17 }, new int[] { 6, 11 } },
-            new int[][] { new int[] { 15, 17 }, new int[] { 19, 22 } },
-            new int[][] { new int[] { 15, 16 }, new int[] { 8, 12 } },
-            new int[][] { new int[] { 19, 20 }, new int[] { 3, 10 } },
-            new int[][] { new int[] { 18, 20 }, new int[] { 16, 22 } },
-            new int[][] { new int[] { 18, 19 }, new int[] { 5, 13 } },
-            new int[][] { new int[] { 22, 23 }, new int[] { 0, 9 } },
-            new int[][] { new int[] { 21, 23 }, new int[] { 16, 19 } },
-            new int[][] { new int[] { 21, 22 }, new int[] { 2, 14 } },
-        };
-
         private static readonly ulong[] FastMills = new ulong[]
         {
             1UL <<  2 | 1UL <<  4, 1UL << 18 | 1UL << 42,// { new int[] { 1, 2 }, new int[] { 9, 21 } } ,
