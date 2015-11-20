@@ -160,7 +160,6 @@ namespace GameFrame.Games
             return BlackUnplayed == 0 && BlackRemaining > 3;
         }
 
-        private const string displayFormatSmall = "{0}--{1}--{2}\n|{3}-{4}-{5}|\n||{6}{7}{8}||\n{9}{10}{11} {12}{13}{14}\n||{15}{16}{17}||\n|{18}-{19}-{20}|\n{21}--{22}--{23}";
         private const string displayFormatLarge =
 @"{0}----{1}----{2}
 |    |    |
