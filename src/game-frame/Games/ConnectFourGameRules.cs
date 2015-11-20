@@ -78,14 +78,6 @@ namespace GameFrame.Games
         {
             return LastMove.ToString();
         }
-
-        public void WriteDebugInfo(TextWriter output)
-        {
-            output.WriteLine("Player1Moves: " + Player1Moves);
-            output.WriteLine("Player2Moves: " + Player2Moves);
-            output.WriteLine("ActivePlayer: " + ActivePlayer);
-            output.WriteLine("LastMove: " + LastMove);
-        }
     }
 
     public class ConnectFourGameRules : GameRules<ConnectFourState>

@@ -67,14 +67,6 @@ namespace GameFrame.Games
         {
             return LastMove.ToString();
         }
-
-        public void WriteDebugInfo(TextWriter output)
-        {
-            output.WriteLine("Board: " + string.Join(", ", Board));
-            output.WriteLine("Empties: " + Empties);
-            output.WriteLine("ActivePlayer: " + ActivePlayer);
-            output.WriteLine("LastMove: " + LastMove);
-        }
     }
 
     public class TicTacToeGameRules : GameRules<TicTacToeState>

@@ -7,12 +7,10 @@ namespace ConsoleTester
 {
     class Program
     {
-        private static bool debug = false;
         private static readonly int? debugRandomSeed = 2348;
 
         static void Main(string[] args)
         {
-            debug = args.Any(m => m == "-debug");
             //PlayTicTacToe();
             //PlayConnectFour();
             TestConnectFour();
@@ -122,24 +120,6 @@ namespace ConsoleTester
                 Console.WriteLine($"Move: {lastMovePlayerName} = " + state.LastMoveDescription());
                 Console.WriteLine(state.ToString());
                 currentPlayer = currentPlayer == p1 ? p2 : p1;
-                if (debug)
-                {
-                    while (true)
-                    {
-                        Console.WriteLine("debugging, enter command, empty line to move on");
-                        string input = Console.ReadLine();
-                        if (string.IsNullOrWhiteSpace(input)) break;
-                        switch (input)
-                        {
-                            case "state": 
-                                state.WriteDebugInfo(Console.Out);
-                                break;
-                            default:
-                                Console.WriteLine("Unrecognized command");
-                                break;
-                        }
-                    }
-                }
             }
             var winner = rules.DetermineWinner(state);
             if (winner == 0f) Console.WriteLine("Result: Tie");

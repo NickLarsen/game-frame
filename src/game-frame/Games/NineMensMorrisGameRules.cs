@@ -195,17 +195,6 @@ namespace GameFrame.Games
             return LastMove.Item1 + "," + LastMove.Item2 + "," + LastMove.Item3;
         }
 
-        public void WriteDebugInfo(TextWriter output)
-        {
-            output.WriteLine("Board: " + string.Join(", ", GetBoardFormatArgs()));
-            output.WriteLine("WhiteUnplayed: " + WhiteUnplayed);
-            output.WriteLine("BlackUnplayed: " + BlackUnplayed);
-            output.WriteLine("ActivePlayer: " + ActivePlayer);
-            output.WriteLine($"LastMove: {LastMove.Item1}, {LastMove.Item2}, {LastMove.Item3}");
-            output.WriteLine("RepeatedState: " + RepeatedState);
-            output.WriteLine("StatesVisited: " + string.Join(", ", StatesVisited));
-        }
-
         private static readonly int[][][] Mills = new int[][][]
         {
             new int[][] { new int[] { 1, 2 }, new int[] { 9, 21 } } ,
