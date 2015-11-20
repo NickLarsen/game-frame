@@ -108,6 +108,8 @@ namespace GameFrame.Games
                     return -1f;
                 }
             }
+            ulong empties = (state.Player1Moves | state.Player2Moves) ^ 0x3ffffffffffUL;
+            if (empties == 0U) return 0f;
             return null;
         }
 
