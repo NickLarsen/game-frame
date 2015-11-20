@@ -90,7 +90,9 @@ namespace GameFrame.Games
         public override float? DetermineWinner(TicTacToeState state)
         {
             if (state.LastMove == -1) return null;
-            var lastPlayerMoves = state.Board >> (state.ActivePlayer == 1 ? 1 : 0);
+            uint player1Moves = state.Board & 0x15555U;
+            uint player2Moves = (state.Board >> 1) & 0x15555U;
+            var lastPlayerMoves = state.ActivePlayer == 1 ? player2Moves : player1Moves;
             foreach (var winner in winners[state.LastMove])
             {
                 if ((lastPlayerMoves & winner) == winner)
@@ -98,8 +100,6 @@ namespace GameFrame.Games
                     return -1f;
                 }
             }
-            uint player1Moves = state.Board & 0x15555U;
-            uint player2Moves = (state.Board >> 1) & 0x15555U;
             uint empties = (player1Moves | player2Moves) ^ 0x15555U;
             if (empties == 0U) return 0f;
             return null;
