@@ -6,7 +6,6 @@ namespace GameFrame.Games
     public class TicTacToeState : IState
     {
         public int?[] Board { get; set; }
-        public int Empties { get; set; }
         public int ActivePlayer { get; set; }
         public int LastMove { get; set; }
 
@@ -38,7 +37,6 @@ namespace GameFrame.Games
         public static TicTacToeState Empty => new TicTacToeState()
         {
             Board = new int?[9],
-            Empties = 9,
             ActivePlayer = 1,
             LastMove = -1,
         };
@@ -48,7 +46,6 @@ namespace GameFrame.Games
             var successor = new TicTacToeState
             {
                 Board = Board.ToArray(),
-                Empties = Empties - 1,
                 ActivePlayer = -ActivePlayer,
                 LastMove = move,
             };
@@ -96,7 +93,7 @@ namespace GameFrame.Games
                     return -1f;
                 }
             }
-            if (state.Empties == 0) return 0f;
+            if (!state.Board.Any(m => m == null)) return 0f;
             return null;
         }
 
