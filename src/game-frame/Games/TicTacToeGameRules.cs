@@ -50,7 +50,7 @@ namespace GameFrame.Games
 
         public override string ToString()
         {
-            var args = GetBoardFormatArgs().Select(m => m == 0 ? " " : (m == 1 ? "W" : "B")).ToArray();
+            var args = GetBoardFormatArgs().Select(m => m == 0 ? " " : (m == 1 ? "X" : "O")).ToArray();
             return string.Format("{0}|{1}|{2}\n-+-+-\n{3}|{4}|{5}\n-+-+-\n{6}|{7}|{8}", args);
         }
 
