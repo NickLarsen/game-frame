@@ -9,6 +9,7 @@ namespace GameFrame.Games
         public ulong Player1Moves { get; set; }
         public ulong Player2Moves { get; set; }
         public int ActivePlayer { get; set; }
+        public int ActivePlayerIndex { get; set; } // TODO: implement this
         public int LastMove { get; set; }
 
         public ulong GetStateHash()

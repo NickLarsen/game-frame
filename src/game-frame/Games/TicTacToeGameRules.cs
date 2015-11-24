@@ -9,6 +9,7 @@ namespace GameFrame.Games
 
         public uint Board { get; set; }
         public int ActivePlayer { get; set; }
+        public int ActivePlayerIndex { get; set; }
         public int LastMove { get; set; }
 
         public ulong GetStateHash()
@@ -33,6 +34,7 @@ namespace GameFrame.Games
         {
             Board = 0U,
             ActivePlayer = 1,
+            ActivePlayerIndex = 0,
             LastMove = -1,
         };
 
@@ -42,6 +44,7 @@ namespace GameFrame.Games
             {
                 Board = Board,
                 ActivePlayer = -ActivePlayer,
+                ActivePlayerIndex = (ActivePlayerIndex + 1) % 2,
                 LastMove = move,
             };
             successor.Board |= (ActivePlayer == 1 ? 1u : 2u) << (move * 2);
@@ -98,8 +101,8 @@ namespace GameFrame.Games
             {
                 if ((lastPlayerMoves & winner) != winner) continue;
                 utility.IsTerminal = true;
-                utility[state.ActivePlayer == 1 ? 0 : 1] = -1f;
-                utility[state.ActivePlayer == 1 ? 1 : 0] = 1f;
+                utility[state.ActivePlayerIndex] = -1f;
+                utility[(state.ActivePlayerIndex + 1) % 2] = 1f;
                 break;
             }
             uint empties = (player1Moves | player2Moves) ^ 0x15555U;

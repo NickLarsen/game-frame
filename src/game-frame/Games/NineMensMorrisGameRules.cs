@@ -7,8 +7,9 @@ namespace GameFrame.Games
     public class NineMensMorrisState : IState
     {
         public const int BoardLength = 24;
-        
+
         public int ActivePlayer { get; set; }
+        public int ActivePlayerIndex { get; set; } // TODO: implement this
         public Tuple<int, int, int> LastMove { get; set; }
         public int WhiteUnplayed { get; set; }
         public int WhiteRemaining { get; set; }

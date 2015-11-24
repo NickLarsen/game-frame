@@ -21,8 +21,10 @@ namespace ConsoleTester
         static void PlayTicTacToe()
         {
             var rules = new TicTacToeGameRules();
-            var p1 = new NegamaxPlayer<TicTacToeState>(rules, rules.Roles[0], 950, 2f, debugRandomSeed);
-            var p2 = new NegamaxPlayer<TicTacToeState>(rules, rules.Roles[1], 950, 2f, debugRandomSeed);
+            //var p1 = new NegamaxPlayer<TicTacToeState>(rules, rules.Roles[0], 950, 2f, debugRandomSeed);
+            //var p2 = new NegamaxPlayer<TicTacToeState>(rules, rules.Roles[1], 950, 2f, debugRandomSeed);
+            var p1 = new UtilimaxPlayer<TicTacToeState>(rules, rules.Roles[0], 950);
+            var p2 = new UtilimaxPlayer<TicTacToeState>(rules, rules.Roles[1], 950);
             var state = TicTacToeState.Empty;
             PlayGame(rules, p1, p2, state);
         }
